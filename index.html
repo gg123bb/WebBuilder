@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="a web page builder for everyone…" />
+    <meta name="theme-color" content="#8cfc03" />
+    <meta property="og:title" content="CjalogWebBuilder" />
+    <meta property="og:description" content="a web page builder for everyone…" />
+    <meta property="og:url" content="" />
+    <meta property="og:type" content="WEB-BUILDER" />
+    <meta property="og:site_name" content="BUILDER" />
+    <meta name="twitter:site" content="@builder" />
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" sizes="16x16" type="image/png" href="" />
+    <link rel="icon" sizes="32x32" type="image/png" href="" />
+    <link rel="icon" type="image/png" href="" />
+
+    <link rel="stylesheet" type="text/css" href="style.css" />
+
+    <title>CjalogWebBuilder</title>
+
+    <script src="./tracker/language/language.js"></script>
+    <script src="./tracker/url-tracker-loc/url-tracker-loc.js"></script>
+
+    <script type="module" src="./tracker/PUBLIC_IP/ip.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+<noscript>
+    <!--Content for NO JS-->
+    <style>a{color: white;text-align: center;margin: 0 5px 0 5px;}#NOJSNAV {position: relative;width: fit-content;margin: auto;display: flex;color: gray;text-align: center;}</style>
+    <div style="position: relative;  background-color: #2c2c2c;"><div id="NOJSNAV"><div>|<a href="">What's that?</a> |</div><div><a href="">Fix that!</a> |</div><div><a href="">Help Me with that!</a>| </div><div><a href="">tutorial :O</a> |</div></div></div>
+    <div style="position: relative; width: 100%; height: 20vw; background-color: #1e9c5b;"><div style="position: relative; margin: auto; text-align: center; font-size: 10vw; font-weight: bolder; color: white">NO JS</div>
+        <div style="position: relative; margin: auto; text-align: center; font-size: 5vw; font-weight: bold; color: white; text-decoration: underline; top: -4vh;">No Content!</div></div><div>
+    <center>You need to enable JavaScript to run this app.<br />We are sorry but you cant use this page whiteout JavaScript :(<br/>if you have turn JavaScript on, You can see the real Web-Page!</center></div>
+    <hr/><hr/><div style="position: relative; margin: auto; text-align: center; color: gray; font-size: 15vw; font-weight: bolder;">404</div><div><center>We need Javascript for Internet Resources!</center></div>
+</noscript>
+<div id="root">
+    <!---DYNAMIC-LOADET-CONTENT--->
+    <div id="dynamic-content"></div>
+
+    <!--
+        <button onclick="analyzeData()">Daten analysieren</button>
+        <canvas id="chart" width="100vw" height="200"></canvas>
+    -->
+</div>
+
+<script>
+/*
+   const userLanguage = languageNavigator();
+
+    if (userLanguage === 'de') {
+
+    } else if (userLanguage === 'en') {
+
+    }
+    */
+</script>
+<script type="module">
+
+
+
+    import { ip } from './tracker/PUBLIC_IP/ip.js';
+
+    ip().then(data => {
+        if (data) {
+            //console.log("Verarbeitete IP-Informationen:", data);
+        }
+    });
+    
+
+</script>
+
+<script src="./tracker/Mtracker/Mtracker.js"></script>
+<script src="./DATA/analyst.js"></script>
+<script src="./CONTENT/content.js"></script>
+<script>
+
+    window.onload = function() {
+        if (typeof manageLanguagePacks === 'function') {
+            // URL-Parameter als Array von Objekten auslesen
+            const urlParamsArray = getURLParamsAsArray();
+            console.log("URL-Parameter als Array:", urlParamsArray);
+
+            // Standardwert 'index', falls kein 'run' vorhanden ist
+            let runValue = 'index';
+
+            // Finde den 'run'-Parameter, wenn vorhanden
+            for (const param of urlParamsArray) {
+                if (param.hasOwnProperty('run')) {
+                    runValue = param.run;
+                }
+            }
+
+            // Weitere Parameter extrahieren und an die Funktion übergeben
+            const otherParams = {};
+            urlParamsArray.forEach(param => {
+                const key = Object.keys(param)[0];
+                if (key !== 'run') {
+                    otherParams[key] = param[key];
+                }
+            });
+
+            console.log("Run-Wert:", runValue);
+            console.log("Andere Parameter:", otherParams);
+
+            // Übergib den 'run'-Wert und die anderen Parameter an manageLanguagePacks
+            manageLanguagePacks(runValue, otherParams);
+
+        } else {
+            console.error('Funktion manageLanguagePacks nicht gefunden.');
+        }
+    };
+</script>
+
+<script>
+    function scriptLoader(scriptUrl) {
+        const scriptElement = document.createElement('script');
+        scriptElement.src = scriptUrl;
+        scriptElement.onload = () => {
+            console.log(`Script loaded: ${scriptUrl}`);
+        };
+        scriptElement.onerror = () => {
+            console.error(`Error loading script: ${scriptUrl}`);
+        };
+        document.body.appendChild(scriptElement);
+    }
+    //function wird zum Ausführen für scripts und functionen verwendet
+</script>
+<!--Source Code by Controller-->
+</body>
+</html>

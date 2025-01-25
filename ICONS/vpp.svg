@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37.123 36.923">
+  <g transform="translate(-3.609 -1.697)">
+    <circle cx="21.57" cy="20.659" r="17.961" fill="#c3c3c3" opacity=".8"/>
+    <circle cx="22.77" cy="19.659" r="17.961" fill="#2784ea"/>
+    <rect width="20.716" height="18.595" x="8.126" y="14.171" fill="#fff" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width=".604" rx=".28" ry=".277" transform="rotate(-11.175)"/>
+    <path fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="M13.471 16.836 29.855 13.6"/>
+    <path fill="#fff" stroke="#ff0b0b" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m13.927 19.142 7.162-1.415"/>
+    <path fill="#fff" stroke="#19cc31" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m22.511 17.446 7.8-1.54"/>
+    <path fill="#fff" stroke="#ff0b0b" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m14.343 21.251 7.162-1.414"/>
+    <path fill="#fff" stroke="#19cc31" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m22.928 19.556 7.8-1.541"/>
+    <path fill="#fff" stroke="#ff0b0b" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m14.74 23.263 7.163-1.415"/>
+    <path fill="#fff" stroke="#19cc31" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m23.325 21.567 7.8-1.541"/>
+    <path fill="#fff" stroke="#ff0b0b" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m15.128 25.225 7.162-1.415"/>
+    <path fill="#fff" stroke="#19cc31" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m23.713 23.529 7.8-1.54"/>
+    <path fill="#fff" stroke="#ff0b0b" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m15.516 27.187 7.162-1.415"/>
+    <path fill="#fff" stroke="#19cc31" stroke-linecap="round" stroke-linejoin="round" stroke-width=".813" d="m24.1 25.491 7.8-1.54"/>
+    <path fill="#fff" stroke="#131b3e" stroke-linecap="round" stroke-linejoin="round" stroke-width=".64" d="M15.12 15.043c2.102-3.91 2.744-1.425 4.374-.689.823.246 2.498-1.712 3.937-1.324 1.607.693 1.932.097 2.287-.108.637-.02 1.375-.12 1.398-1.108.229-.614.727-.041.69.34"/>
+  </g>
+</svg>

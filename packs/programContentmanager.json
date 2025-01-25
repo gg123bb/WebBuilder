@@ -1,0 +1,34 @@
+{
+  "content": [
+    {
+      "id": "000index",
+      "lang": "eng",
+      "link": "",
+      "priority": 0,
+      "private": "false",
+      "start": "false",
+      "end": "true",
+      "category": "index"
+    },
+    {
+      "id": "001builder",
+      "lang": "eng",
+      "link": "./packs/CjalogBuilderProjekt.json",
+      "priority": 1,
+      "private": "false",
+      "start": "true",
+      "end": "false",
+      "category": "builder"
+    },
+    {
+      "id": "404notfound",
+      "lang": "eng",
+      "link": "./packs/notfound.json",
+      "private": "false",
+      "priority": 1,
+      "start": "false",
+      "end": "false",
+      "category": "notfound"
+    }
+  ]
+}

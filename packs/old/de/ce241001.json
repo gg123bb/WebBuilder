@@ -1,0 +1,281 @@
+{
+  "modules": [
+    {
+      "type": "module",
+      "name": "navbar",
+      "scriptURL": "/lernsax-test/CONTENT/modules/navbar.js",
+      "meta": {
+        "name": "FLATnavbar",
+        "version": "T001",
+        "id": "Navbar0001",
+        "public": "true",
+        "start": "true",
+        "end": "false",
+        "padding": "10px"
+      },
+      "content": [
+        {
+          "body": {
+            "type": "link",
+            "name": "",
+            "url": "/",
+            "textcolor": "#fff",
+            "BGcolor": "#000",
+            "height": "2.5vh",
+            "width": "90%"
+          }
+        },
+        {
+          "body": {
+            "type": "link",
+            "name": "Home",
+            "url": "#Home",
+            "textcolor": "#fff",
+            "BGcolor": "#000",
+            "height": "2.5vh",
+            "width": "90%",
+            "category": "Home"
+          }
+        },
+        {
+          "body": {
+            "type": "link",
+            "name": "About",
+            "url": "",
+            "textcolor": "#fff",
+            "BGcolor": "#000",
+            "height": "2.5vh",
+            "width": "90%",
+            "category": "about"
+          }
+        },
+        {
+          "body": {
+            "type": "link",
+            "name": "Block",
+            "url": "",
+            "textcolor": "#fff",
+            "BGcolor": "#000",
+            "height": "2.5vh",
+            "width": "90%",
+            "category": "index"
+          }
+        }
+      ]
+    },
+    {
+      "type": "module",
+      "name": "ContentBuilder",
+      "scriptURL": "/lernsax-test/CONTENT/modules/ContentBuilder.js",
+      "meta": {
+        "name": "Title Screen",
+        "id": "Home_Title_Screen"
+      },
+      "content": [
+        {
+          "type": "div",
+          "attributes": {
+            "class": "TitleScreen",
+            "style": "position: relative; width: 100vw; height: 50vh;"
+          },
+          "children": [
+            {
+              "type": "div",
+              "attributes": {
+                "style": "position: relative; margin: auto; width: 95vw; height: 100%; background: rgb(43,184,20);background: -moz-linear-gradient(174deg, rgba(43,184,20,1) 0%, rgba(213,254,74,1) 100%);background: -webkit-linear-gradient(174deg, rgba(43,184,20,1) 0%, rgba(213,254,74,1) 100%);background: linear-gradient(174deg, rgba(43,184,20,1) 0%, rgba(213,254,74,1) 100%);filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#2bb814',endColorstr='#d5fe4a',GradientType=1);"
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "attributes": {
+                    "style": "position: relative; margin: auto; top: 8vh; display: flex; width: 90%;"
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "style": "position: relative; width: 100%; font-size: 5vw; color: white; font-weight: bold;"
+                      },
+                      "children": [
+                        {
+                          "type": "div",
+                          "attributes": {
+                            "style": ""
+                          },
+                          "text": "Hallo"
+                        },
+                        {
+                          "type": "div",
+                          "attributes": {
+                            "style": "position: relative; top: 2vh;"
+                          },
+                          "text": "32. HOME"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "style": "position: relative; font-size: 5vw; width: 100%; height: 30vh;"
+                      },
+                      "children": [
+                        {
+                          "type": "div",
+                          "attributes": {
+                            "style": "position: relative; margin: auto; width: 40%; height: 100%; background-color: #C1E3C0; border-radius: 15px; transform: rotate(-5deg); z-index: 0;"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "div",
+                  "attributes": {
+                    "style": "position: absolute; bottom: 0px; width: 100%; height: 25vh;"
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "style": "position: relative; margin: auto; width: 20px;  padding: 20px; color: white; font-size: 2vw; text-align: center; background-color: #303030; border-radius: 50%; z-index: 4;"
+                      },
+                      "text": "↓"
+                    },
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "style": "position: absolute; bottom: 0px; width: 102%; height: 20vh; background: rgb(255,255,255);background: -moz-linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,1) 100%);background: -webkit-linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,1) 100%);background: linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,1) 100%);filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff',endColorstr='#ffffff',GradientType=1); overflow: hidden;"
+                      },
+                      "children": [
+                        {
+                          "type": "img",
+                          "attributes": {
+                            "style": "width: 98%; margin: 0; padding: 0;",
+                            "src": "http://32osdd.lernsax.de/lernsax-test/pictures/whitething.svg"
+                          }
+                        },
+                        {
+                          "type": "div",
+                          "attributes": {
+                            "style": "position: relative; top: -3vh; height: 100%; width: 100%; background-color: white;"
+                          }
+                        },
+
+                            {
+                              "type": "div",
+                              "attributes": {
+                                "style": "position: absolute; width: 100%; text-align: center; color: black; bottom: 3vh; font-size: 5vw; font-weight: bold;"
+                              },
+                              "text": "Alles an einem Ort!"
+                            }
+
+
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "module",
+      "name": "navbar",
+      "scriptURL": "/lernsax-test/CONTENT/modules/navbar.js",
+      "meta": {
+        "name": "ICONnavbar",
+        "version": "T001",
+        "id": "ICON-NAVBERf0014532",
+        "public": "true",
+        "start": "true",
+        "end": "false",
+        "width": "95vw",
+        "height": "20vh",
+        "center": "true",
+        "bg": "#fff",
+        "tr": "false"
+      },
+      "content": [
+        {
+          "body": {
+            "type": "imagelink",
+            "name": "",
+            "url": "./#Vertretungsplan",
+            "src": "http://32osdd.lernsax.de/lernsax-test/ICONS/vp.svg",
+            "textcolor": "#fff",
+            "BGcolor": "",
+            "height": "15vh",
+            "width": "100%",
+            "center": "center",
+            "title": "Home",
+            "category": "index"
+          }
+        },
+        {
+          "body": {
+            "type": "imagelink",
+            "name": "",
+            "url": "./#vpp",
+            "src": "http://32osdd.lernsax.de/lernsax-test/ICONS/vpp.svg",
+            "textcolor": "#fff",
+            "BGcolor": "",
+            "height": "15vh",
+            "width": "100%",
+            "center": "center",
+            "title": "Vertretungsplan",
+            "category": "Home"
+          }
+        },
+        {
+          "body": {
+            "type": "imagelink",
+            "name": "",
+            "url": "./#Einstellungen",
+            "src": "http://32osdd.lernsax.de/lernsax-test/ICONS/svp.svg",
+            "textcolor": "#fff",
+            "BGcolor": "",
+            "height": "15vh",
+            "width": "100%",
+            "center": "center",
+            "title": "Einstellungen",
+            "category": "index"
+          }
+        }
+      ]
+    },
+
+    {
+      "type": "module",
+      "name": "footer",
+      "scriptURL": "/lernsax-test/CONTENT/modules/footer.js",
+      "meta": {
+        "BGcolor": "#fff",
+        "textcolor": "#000",
+        "name": "SimpleFooter"
+      },
+      "content": {
+        "body": {
+          "text": "Willkomen auf der 32 HOME Seite!"
+        }
+      }
+    },
+    {
+      "type": "module",
+      "name": "footer",
+      "scriptURL": "/lernsax-test/CONTENT/modules/footer.js",
+      "meta": {
+        "BGcolor": "#fff",
+        "textcolor": "#000",
+        "name": "SimpleFooter"
+      },
+      "content": {
+        "body": {
+          "text": "Generierter QUELLTEXT!"
+        }
+      }
+    }
+  ]
+}

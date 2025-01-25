@@ -1,0 +1,454 @@
+{
+  "modules": [
+    {
+      "type": "module",
+      "name": "cookiePopup",
+      "scriptURL": "/CONTENT/modules/cookiepopup.js",
+      "meta": {
+        "name": "Cookie Popup",
+        "id": "CookiePopup0001",
+        "public": "true",
+        "start": "true",
+        "end": "false",
+        "popup": "myPopupCookie",
+        "popuptype": "boolean",
+        "popupStatus": "true"
+      },
+      "content": [
+        {
+          "type": "div",
+          "attributes": {
+              "id": "Data-and-Cookie-Popup-Dynamic-Generative-Important",
+              "style": "position: fixed; margin: auto;  left: 0;  right: 0; top: 15vh;  width: 70vw; height: 70vh; background-color: #333; border-radius: 25px; overflow: hidden; z-index: 5;"
+          },
+          "children": [
+            {
+              "type": "div",
+              "attributes": {
+                "style": "position: relative; display: flex; margin: auto; margin-top: 5vh; width: 90%; height: 10vh;"
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "attributes": {
+                    "style": "position: relative; display: flex; width: 100%; height: auto;"
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "title": "cookies",
+                        "style": "height: min-content; margin: 0 5px; padding: 10px 15px; background-color: #708070; color: white; border: none; border-radius: 5px; cursor: pointer;",
+                        "onmouseover": "this.style.background='#5c6b5c'",
+                        "onmouseout": "this.style.background='#708070'"
+                      },
+                      "text": "C"
+                    },
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "title": "data",
+                        "style": "height: min-content; margin: 0 5px; padding: 10px 15px; background-color: #708070; color: white; border: none; border-radius: 5px; cursor: pointer;",
+                        "onmouseover": "this.style.background='#5c6b5c'",
+                        "onmouseout": "this.style.background='#708070'"
+                      },
+                      "text": "D"
+                    },
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "title": "right",
+                        "style": "height: min-content; margin: 0 5px; padding: 10px 15px; background-color: #708070; color: white; border: none; border-radius: 5px; cursor: pointer;",
+                        "onmouseover": "this.style.background='#5c6b5c'",
+                        "onmouseout": "this.style.background='#708070'",
+                        "onclick": "function() { const langElement = document.getElementById('lang'); const languages = ['EN', 'DE', 'FR', 'ES']; let currentIndex = languages.indexOf(langElement.textContent) + 1; if (currentIndex >= languages.length) { currentIndex = 0; } langElement.textContent = languages[currentIndex]; }"
+                      },
+                      "text": "R"
+                    }
+                  ]
+                },
+                {
+                  "type": "div",
+                  "attributes": {
+                    "style": "position: relative; width: 100%; height: auto;"
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "id": "lang",
+                        "title": "language",
+                        "style": "position: absolute; right: 0px; margin: 0 5px; padding: 10px 15px; background-color: #ae7e2d; color: white; border: none; border-radius: 5px; cursor: pointer;",
+                        "onmouseover": "this.style.background='#966b21'",
+                        "onmouseout": "this.style.background='#ae7e2d'",
+                        "onclick": "changeLanguage()"
+                      },
+                      "text": "EN"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "div",
+              "attributes": {
+                "style": "position: relative; margin: auto; width: 90%; height: 60%; background-color: #4a4a4a;"
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "attributes": {
+                    "id": "popup-text",
+                    "style": "position: relative; width: 95%; padding-right: 2.5%; padding-left: 2.5%; height: 100%; color: #fff; overflow-y: scroll; overflow-x: hidden; word-wrap: break-word; overflow-wrap: break-word;"
+                  },
+                  "text": "loading..."
+                },
+                {
+                  "type": "style",
+                  "text": "#popup-text::-webkit-scrollbar {width: 10px;}#popup-text::-webkit-scrollbar-track {background: #4a4a4a;}#popup-text::-webkit-scrollbar-thumb {background: #888;}#popup-text::-webkit-scrollbar-thumb:hover {background: #a1a1a1;}"
+                },
+                {
+                  "type": "script",
+                  "text": "let languages = ['EN', 'FR', 'ES', 'DE']; let currentLanguageIndex = 0; let languageData = {}; function loadLanguageData() { console.log('popupfetch ausführen'); const rootPath = `${window.location.origin}`; console.log(`${rootPath}/packs/popuppack.json`);  fetch('${rootPath}/packs/popuppack.json') .then(response => response.json()) .then(data => { languageData = data; updateLanguageContent(); }); } function changeLanguage() { const langElement = document.getElementById('lang'); currentLanguageIndex = (currentLanguageIndex + 1) % languages.length; langElement.textContent = languages[currentLanguageIndex]; updateLanguageContent(); } function updateLanguageContent() { const currentLanguage = languages[currentLanguageIndex].toLowerCase(); const textElement = document.getElementById('popup-text'); if (languageData[currentLanguage]) { textElement.innerHTML = languageData[currentLanguage].cookieContent; } else { textElement.innerHTML = 'Language content not available.'; } } document.addEventListener('DOMContentLoaded', loadLanguageData);"
+
+                }
+              ]
+            },
+            {
+              "type": "div",
+              "attributes": {
+                "style": "position: relative; margin: auto; margin-top: 2vh; width: 90%; height: 8vh;"
+              },
+              "children": [
+                {
+                  "type": "button",
+                  "attributes": {
+                    "id": "closePopup",
+                    "onclick": "popupCokkieff(true);",
+                    "style": "padding: 10px;background-color: #4CAF50;color: white;border: none;border-radius: 5px;cursor: pointer;",
+                    "onmouseover": "this.style.background='#439c46'",
+                    "onmouseout": "this.style.background='#4CAF50'"
+                  },
+                  "text": "accept"
+                }
+              ]
+            },
+            {
+              "type": "script",
+              "text": "function popupCokkieff(value) {const e=value; document.cookie = `myPopupCookie=${e}; path=/; expires=${new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toUTCString()}`; const bp=document.getElementById('Data-and-Cookie-Popup-Dynamic-Generative-Important'); bp.outerHTML=''; console.log('popup vom sreen löschen');}"
+            }
+          ]
+        }
+      ]
+    },
+
+
+    {
+      "type": "module",
+      "name": "navbar",
+      "scriptURL": "/CONTENT/modules/navbar.js",
+      "meta": {
+        "name": "FLATnavbar",
+        "version": "T001",
+        "id": "Navbar0001",
+        "public": "true",
+        "start": "true",
+        "end": "false",
+        "padding": "10px"
+      },
+      "content": [
+        {
+          "body": {
+            "type": "link",
+            "name": "",
+            "url": "/",
+            "textcolor": "#fff",
+            "BGcolor": "#000",
+            "height": "2.5vh",
+            "width": "90%"
+          }
+        },
+        {
+          "body": {
+            "type": "link",
+            "name": "Home",
+            "url": "#Home",
+            "textcolor": "#fff",
+            "BGcolor": "#000",
+            "height": "2.5vh",
+            "width": "90%",
+            "category": "Home"
+          }
+        },
+        {
+          "body": {
+            "type": "link",
+            "name": "About",
+            "url": "",
+            "textcolor": "#fff",
+            "BGcolor": "#000",
+            "height": "2.5vh",
+            "width": "90%",
+            "category": "about"
+          }
+        },
+        {
+          "body": {
+            "type": "link",
+            "name": "Block",
+            "url": "",
+            "textcolor": "#fff",
+            "BGcolor": "#000",
+            "height": "2.5vh",
+            "width": "90%",
+            "category": "index"
+          }
+        }
+      ]
+    },
+    {
+      "type": "module",
+      "name": "ContentBuilder",
+      "scriptURL": "/lernsax-test/CONTENT/modules/ContentBuilder.js",
+      "meta": {
+        "name": "Title Screen",
+        "id": "Home_Title_Screen"
+      },
+      "content": [
+        {
+          "type": "div",
+          "attributes": {
+            "class": "TitleScreen",
+            "style": "position: relative;  height: 50vh;"
+          },
+          "children": [
+            {
+              "type": "div",
+              "attributes": {
+                "style": "position: relative; margin: auto; width: 95vw; height: 100%; background: #b83814;background: -moz-linear-gradient(174deg, #b83814 0%, #fe714a 100%);background: -webkit-linear-gradient(174deg, #b83814 0%, #fe714a 100%);background: linear-gradient(174deg, #b83814 0%, #fe714a 100%);filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#b83814',endColorstr='#fe714a',GradientType=1);"
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "attributes": {
+                    "style": "position: relative; margin: auto; top: 8vh; display: flex; width: 90%;"
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "style": "position: relative; width: 100%; font-size: 5vw; color: white; font-weight: bold;"
+                      },
+                      "children": [
+                        {
+                          "type": "div",
+                          "attributes": {
+                            "style": ""
+                          },
+                          "text": "Not found"
+                        },
+                        {
+                          "type": "div",
+                          "attributes": {
+                            "style": "position: relative; top: 2vh;"
+                          },
+                          "text": "404"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "style": "position: relative; font-size: 5vw; width: 100%; height: 30vh;"
+                      },
+                      "children": [
+                        {
+                          "type": "div",
+                          "attributes": {
+                            "style": "position: relative; margin: auto; width: 40%; height: 100%; background-color: #C1E3C0; border-radius: 15px; transform: rotate(-5deg); z-index: 0;"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "div",
+                  "attributes": {
+                    "style": "position: absolute; bottom: 0px; width: 100%; height: 25vh;"
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "style": "position: relative; margin: auto; width: 10vw;  padding: 0px; color: white; font-size: 2vw; text-align: center;  border-radius: 50%; z-index: 4;"
+                      },
+                      "children": [
+                        {
+                          "type": "img",
+                          "attributes": {
+                            "src": "http://32osdd.lernsax.de/lernsax-test/ICONS/arrowbottom.svg",
+                            "style": "width:100%; height: auto;"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "style": "position: absolute; bottom: 0px; width: 100%; height: 20vh; background: rgb(255,255,255);background: -moz-linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,1) 100%);background: -webkit-linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,1) 100%);background: linear-gradient(180deg, rgba(255,255,255,0) 40%, rgba(255,255,255,1) 100%);filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff',endColorstr='#ffffff',GradientType=1); overflow: hidden;"
+                      },
+                      "children": [
+                        {
+                          "type": "img",
+                          "attributes": {
+                            "style": "width: 100%; margin: 0; padding: 0;",
+                            "src": "http://32osdd.lernsax.de/lernsax-test/pictures/whitething.svg"
+                          }
+                        },
+                        {
+                          "type": "div",
+                          "attributes": {
+                            "style": "position: relative; top: -3vh; height: 100%; width: 100%; background-color: white;"
+                          }
+                        },
+
+                            {
+                              "type": "div",
+                              "attributes": {
+                                "style": "position: absolute; width: 100%; text-align: center; color: black; bottom: 3vh; font-size: 5vw; font-weight: bold;"
+                              },
+                              "text": "Wieder zurück"
+                            }
+
+
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "module",
+      "name": "navbar",
+      "scriptURL": "/lernsax-test/CONTENT/modules/navbar.js",
+      "meta": {
+        "name": "ICONnavbar",
+        "version": "T001",
+        "id": "ICON-NAVBERf0014532",
+        "public": "true",
+        "start": "true",
+        "end": "false",
+        "width": "95vw",
+        "height": "20vh",
+        "center": "true",
+        "bg": "#fff",
+        "tr": "false"
+      },
+      "content": [
+        {
+          "body": {
+            "type": "imagelink",
+            "name": "",
+            "url": "./#Vertretungsplan",
+            "src": "http://32osdd.lernsax.de/lernsax-test/ICONS/vp.svg",
+            "textcolor": "#fff",
+            "BGcolor": "",
+            "height": "15vh",
+            "width": "100%",
+            "center": "center",
+            "title": "Home",
+            "category": "index"
+          }
+        },
+        {
+          "body": {
+            "type": "imagelink",
+            "name": "",
+            "url": "./#vpp",
+            "src": "http://32osdd.lernsax.de/lernsax-test/ICONS/vpp.svg",
+            "textcolor": "#fff",
+            "BGcolor": "",
+            "height": "15vh",
+            "width": "100%",
+            "center": "center",
+            "title": "Vertretungsplan",
+            "category": "Home"
+          }
+        },
+        {
+          "body": {
+            "type": "imagelink",
+            "name": "",
+            "url": "./#Einstellungen",
+            "src": "http://32osdd.lernsax.de/lernsax-test/ICONS/svp.svg",
+            "textcolor": "#fff",
+            "BGcolor": "",
+            "height": "15vh",
+            "width": "100%",
+            "center": "center",
+            "title": "Einstellungen",
+            "category": "index"
+          }
+        }
+      ]
+    },
+
+    {
+      "type": "module",
+      "name": "footer",
+      "scriptURL": "/lernsax-test/CONTENT/modules/footer.js",
+      "meta": {
+        "BGcolor": "#fff",
+        "textcolor": "#000",
+        "name": "SimpleFooter"
+      },
+      "content": {
+        "body": {
+          "text": "Wir haben deinen angegebenen link nicht gefunden :("
+        }
+      }
+    },
+    {
+      "type": "module",
+      "name": "footer",
+      "scriptURL": "/lernsax-test/CONTENT/modules/footer.js",
+      "meta": {
+        "BGcolor": "#fff",
+        "textcolor": "#000",
+        "name": "SimpleFooter"
+      },
+      "content": {
+        "body": {
+          "text": "Generierter QUELLTEXT!"
+        }
+      }
+    },
+    {
+      "type": "module",
+      "name": "ContentBuilder",
+      "scriptURL": "/lernsax-test/CONTENT/modules/ContentBuilder.js",
+      "meta": {
+        "name": "Test",
+        "id": "testjsgerator"
+      },
+      "content": [
+        {
+          "type": "div",
+          "attributes": {
+
+            "style": "position: relative;  height: 50vh; background-color: green;"
+          }
+        },
+        {
+          "type": "script",
+          "text": ""
+        }
+      ]
+    }
+  ]
+}

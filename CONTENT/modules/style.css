@@ -1,0 +1,27 @@
+/* Styles für die FLATnavbar*/
+.FLATnavbarBODY {
+    background-color: #333;
+    color: white;
+    display: flex;
+    align-items: center;
+
+
+}
+.FLATnavbar {
+    margin: 0 5px 0 5px;
+}
+.FLATnavLink {
+    color: #fff;
+    text-decoration: none;
+}
+.FLATnavLink:hover{
+    text-decoration: underline;
+}
+.FLATnavText {
+
+}
+.FLATnavTRText {
+
+    color: #ccc;
+}
+

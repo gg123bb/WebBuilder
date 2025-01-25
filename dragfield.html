@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drag and Drop mit Größenanpassung</title>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+    }
+
+    #drag-container {
+      position: relative;
+      width: auto;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .draggable {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background-color: #3498db;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 5px;
+      cursor: grab;
+      border: 2px solid #2ecc71;
+      user-select: none;
+      touch-action: none;
+      transition: transform 0.1s ease, border 0.2s ease;
+    }
+
+    .draggable:active {
+      cursor: grabbing;
+      border: 2px solid #27ae60;
+      transform: scale(0.95);
+      box-shadow: black 0 0 10px;
+    }
+
+    .attraction-zone {
+      position: absolute;
+      z-index: -1;
+      background-color: rgba(255, 0, 0, 0.2);
+    }
+
+    .attraction-zone-right {
+      top: 0;
+      right: 0;
+      width: 7vw;
+      height: 100%;
+    }
+
+    .attraction-zone-left {
+      top: 0;
+      left: 0;
+      width: 7vw;
+      height: 100%;
+    }
+
+    .attraction-zone-top {
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6vh;
+    }
+
+    .attraction-zone-bottom {
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 6vh;
+    }
+
+    .snap-point {
+      position: absolute;
+      background-color: rgba(0, 255, 0, 0.3);
+      z-index: 1;
+    }
+
+    .snap-point-left {
+      width: 0px;
+      height: 100%;
+      left: 0;
+      top: 0;
+    }
+
+    .snap-point-right {
+      width: 0px;
+      height: 100%;
+      right: 0;
+      top: 0;
+    }
+
+    .snap-point-top {
+      width: 100%;
+      height: 0px;
+      top: 0;
+      left: 0;
+    }
+
+    .snap-point-bottom {
+      width: 100%;
+      height: 0px;
+      bottom: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+<div id="drag-container">
+  <div class="draggable" style="top: 100px; left: 50px;">Resize & Drag</div>
+  <div class="draggable" style="top: 200px; left: 200px;">Resize & Drag</div>
+  <div class="draggable" style="top: 100px; left: 50px;">Resize & Drag</div>
+  <div class="draggable" style="top: 200px; left: 200px;">Resize & Drag</div>
+
+  <!-- Snap-Zonen -->
+  <div class="attraction-zone attraction-zone-right"></div>
+  <div class="attraction-zone attraction-zone-left"></div>
+  <div class="attraction-zone attraction-zone-top"></div>
+  <div class="attraction-zone attraction-zone-bottom"></div>
+
+  <!-- Snap-Punkte -->
+  <div class="snap-point snap-point-left"></div>
+  <div class="snap-point snap-point-right"></div>
+  <div class="snap-point snap-point-top"></div>
+  <div class="snap-point snap-point-bottom"></div>
+</div>
+
+<script>
+  function initializeDragDrop() {
+    const draggables = document.querySelectorAll('.draggable');
+    const zones = document.querySelectorAll('.attraction-zone');
+    const snapPoints = document.querySelectorAll('.snap-point');
+
+    let activeElement = null;
+    let resizing = false;
+    let resizeDirection = null;
+
+    let offsetX = 0;
+    let offsetY = 0;
+    let initialMouseX = 0;
+    let initialMouseY = 0;
+    let initialWidth = 0;
+    let initialHeight = 0;
+
+    draggables.forEach((draggable) => {
+      draggable.addEventListener('mousedown', (e) => handlePointerDown(e, draggable));
+      draggable.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        handlePointerDown(touch, draggable);
+        e.preventDefault();
+      });
+
+      draggable.addEventListener('mousemove', (e) => {
+        const cursorType = getCursorType(e, draggable);
+        draggable.style.cursor = cursorType || 'grab';
+      });
+    });
+
+    document.addEventListener('mousemove', handlePointerMove);
+    document.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      handlePointerMove(touch);
+    });
+
+    document.addEventListener('mouseup', handlePointerUp);
+    document.addEventListener('touchend', handlePointerUp);
+
+    window.addEventListener('resize', adjustDraggablesOnResize);
+
+    function handlePointerDown(event, element) {
+      const cursorType = getCursorType(event, element);
+      if (cursorType && cursorType.includes('resize')) {
+        startResize(event, element);
+      } else {
+        startDrag(event, element);
+      }
+    }
+
+    function startDrag(event, element) {
+      if (resizing) return;
+      activeElement = element;
+      offsetX = event.clientX - element.offsetLeft;
+      offsetY = event.clientY - element.offsetTop;
+      element.style.zIndex = '1000';
+    }
+
+    function performDrag(event) {
+      const container = document.getElementById('drag-container');
+      let x = event.clientX - offsetX;
+      let y = event.clientY - offsetY;
+
+      x = Math.max(0, Math.min(container.offsetWidth - activeElement.offsetWidth, x));
+      y = Math.max(0, Math.min(container.offsetHeight - activeElement.offsetHeight, y));
+
+      activeElement.style.left = `${x}px`;
+      activeElement.style.top = `${y}px`;
+
+      checkSnapAndZones(activeElement, x, y);
+    }
+
+    function stopInteraction() {
+      if (activeElement) {
+        activeElement.style.zIndex = '1';
+      }
+      activeElement = null;
+      resizing = false;
+      resizeDirection = null;
+    }
+
+    function getCursorType(event, element) {
+      const rect = element.getBoundingClientRect();
+      const borderSize = 8;
+
+      const onLeft = event.clientX >= rect.left - borderSize && event.clientX <= rect.left + borderSize;
+      const onRight = event.clientX >= rect.right - borderSize && event.clientX <= rect.right + borderSize;
+      const onTop = event.clientY >= rect.top - borderSize && event.clientY <= rect.top + borderSize;
+      const onBottom = event.clientY >= rect.bottom - borderSize && event.clientY <= rect.bottom + borderSize;
+
+      if (onLeft && onTop) return 'nwse-resize';
+      if (onRight && onTop) return 'nesw-resize';
+      if (onLeft && onBottom) return 'nesw-resize';
+      if (onRight && onBottom) return 'nwse-resize';
+      if (onLeft || onRight) return 'ew-resize';
+      if (onTop || onBottom) return 'ns-resize';
+
+      return null;
+    }
+
+    function startResize(event, element) {
+      resizing = true;
+      activeElement = element;
+
+      const rect = element.getBoundingClientRect();
+      initialMouseX = event.clientX;
+      initialMouseY = event.clientY;
+      initialWidth = rect.width;
+      initialHeight = rect.height;
+
+      resizeDirection = {
+        top: event.clientY < rect.top + 8,
+        bottom: event.clientY > rect.bottom - 8,
+        left: event.clientX < rect.left + 8,
+        right: event.clientX > rect.right - 8,
+      };
+    }
+
+    function performResize(event) {
+      const container = document.getElementById('drag-container');
+
+      if (resizeDirection.right) {
+        const newWidth = initialWidth + (event.clientX - initialMouseX);
+        if (newWidth > 50 && activeElement.offsetLeft + newWidth <= container.clientWidth) {
+          activeElement.style.width = `${newWidth}px`;
+        }
+      }
+
+      if (resizeDirection.left) {
+        const diffX = initialMouseX - event.clientX;
+        const newWidth = initialWidth + diffX;
+        if (newWidth > 50 && activeElement.offsetLeft - diffX >= 0) {
+          activeElement.style.width = `${newWidth}px`;
+          activeElement.style.left = `${activeElement.offsetLeft - diffX}px`;
+        }
+      }
+
+      if (resizeDirection.bottom) {
+        const newHeight = initialHeight + (event.clientY - initialMouseY);
+        if (newHeight > 50 && activeElement.offsetTop + newHeight <= container.clientHeight) {
+          activeElement.style.height = `${newHeight}px`;
+        }
+      }
+
+      if (resizeDirection.top) {
+        const diffY = initialMouseY - event.clientY;
+        const newHeight = initialHeight + diffY;
+        if (newHeight > 50 && activeElement.offsetTop - diffY >= 0) {
+          activeElement.style.height = `${newHeight}px`;
+          activeElement.style.top = `${activeElement.offsetTop - diffY}px`;
+        }
+      }
+    }
+
+    function handlePointerMove(event) {
+      if (activeElement && resizing) {
+        performResize(event);
+      } else if (activeElement) {
+        performDrag(event);
+      }
+    }
+
+    function handlePointerUp() {
+      stopInteraction();
+    }
+
+    function checkSnapAndZones(element, x, y) {
+      zones.forEach((zone) => {
+        const zoneRect = zone.getBoundingClientRect();
+        const elemRect = element.getBoundingClientRect();
+
+        if (
+                elemRect.right > zoneRect.left &&
+                elemRect.left < zoneRect.right &&
+                elemRect.bottom > zoneRect.top &&
+                elemRect.top < zoneRect.bottom
+        ) {
+          snapPoints.forEach((snapPoint) => {
+            if (zone.classList.contains('attraction-zone-left') && snapPoint.classList.contains('snap-point-left')) {
+              element.style.left = `${snapPoint.offsetLeft}px`;
+            } else if (zone.classList.contains('attraction-zone-right') && snapPoint.classList.contains('snap-point-right')) {
+              element.style.left = `${snapPoint.offsetLeft - element.offsetWidth}px`;
+            } else if (zone.classList.contains('attraction-zone-top') && snapPoint.classList.contains('snap-point-top')) {
+              element.style.top = `${snapPoint.offsetTop}px`;
+            } else if (zone.classList.contains('attraction-zone-bottom') && snapPoint.classList.contains('snap-point-bottom')) {
+              element.style.top = `${snapPoint.offsetTop - element.offsetHeight}px`;
+            }
+          });
+        }
+      });
+    }
+
+    function adjustDraggablesOnResize() {
+      draggables.forEach((draggable) => {
+        const container = document.getElementById('drag-container');
+        const draggableRect = draggable.getBoundingClientRect();
+
+        if (draggableRect.right > container.clientWidth) {
+          draggable.style.left = `${container.clientWidth - draggable.offsetWidth}px`;
+        }
+        if (draggableRect.bottom > container.clientHeight) {
+          draggable.style.top = `${container.clientHeight - draggable.offsetHeight}px`;
+        }
+
+        checkSnapAndZones(draggable, draggable.offsetLeft, draggable.offsetTop);
+      });
+    }
+  }
+
+  initializeDragDrop();
+</script>
+</body>
+</html>

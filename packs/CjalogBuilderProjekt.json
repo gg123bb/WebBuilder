@@ -1,0 +1,230 @@
+{
+  "modules": [
+    {
+      "type": "module",
+      "name": "ContentBuilder",
+      "scriptURL": "/CONTENT/modules/ContentBuilder.js",
+      "meta": {
+        "name": "body-root",
+        "id": "body-root"
+      },
+      "content": [
+        {
+          "type": "style",
+          "attributes": {
+
+          },
+          "text": ":root{ --groundcolor: blue; --bgdatanavbar:#1f1f1f; --loadingblue: #2e62e6;}"
+        }
+      ]
+    },
+    {
+      "type": "module",
+      "name": "cookiePopup",
+      "scriptURL": "/CONTENT/modules/cookiepopup.js",
+      "meta": {
+        "name": "Cookie Popup",
+        "id": "CookiePopup0001",
+        "public": "true",
+        "start": "true",
+        "end": "false",
+        "popup": "myPopupCookie",
+        "popuptype": "boolean",
+        "popupStatus": "true"
+      },
+      "content": [
+        {
+          "type": "div",
+          "attributes": {
+            "id": "Data-and-Cookie-Popup-Dynamic-Generative-Important",
+            "style": "position: fixed; margin: auto;  left: 0;  right: 0; top: 15vh;  width: 70vw; height: 70vh; background-color: #333; border-radius: 25px; overflow: hidden; z-index: 5;"
+          },
+          "children": [
+            {
+              "type": "div",
+              "attributes": {
+                "style": "position: relative; display: flex; margin: auto; margin-top: 5vh; width: 90%; height: 10vh;"
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "attributes": {
+                    "style": "position: relative; display: flex; width: 100%; height: auto;"
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "title": "cookies",
+                        "style": "height: min-content; margin: 0 5px; padding: 10px 15px; background-color: #708070; color: white; border: none; border-radius: 5px; cursor: pointer;",
+                        "onmouseover": "this.style.background='#5c6b5c'",
+                        "onmouseout": "this.style.background='#708070'"
+                      },
+                      "text": "C"
+                    },
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "title": "data",
+                        "style": "height: min-content; margin: 0 5px; padding: 10px 15px; background-color: #708070; color: white; border: none; border-radius: 5px; cursor: pointer;",
+                        "onmouseover": "this.style.background='#5c6b5c'",
+                        "onmouseout": "this.style.background='#708070'"
+                      },
+                      "text": "D"
+                    },
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "title": "right",
+                        "style": "height: min-content; margin: 0 5px; padding: 10px 15px; background-color: #708070; color: white; border: none; border-radius: 5px; cursor: pointer;",
+                        "onmouseover": "this.style.background='#5c6b5c'",
+                        "onmouseout": "this.style.background='#708070'",
+                        "onclick": "function() { const langElement = document.getElementById('lang'); const languages = ['EN', 'DE', 'FR', 'ES']; let currentIndex = languages.indexOf(langElement.textContent) + 1; if (currentIndex >= languages.length) { currentIndex = 0; } langElement.textContent = languages[currentIndex]; }"
+                      },
+                      "text": "R"
+                    }
+                  ]
+                },
+                {
+                  "type": "div",
+                  "attributes": {
+                    "style": "position: relative; width: 100%; height: auto;"
+                  },
+                  "children": [
+                    {
+                      "type": "div",
+                      "attributes": {
+                        "id": "lang",
+                        "title": "language",
+                        "style": "position: absolute; right: 0px; margin: 0 5px; padding: 10px 15px; background-color: #ae7e2d; color: white; border: none; border-radius: 5px; cursor: pointer;",
+                        "onmouseover": "this.style.background='#966b21'",
+                        "onmouseout": "this.style.background='#ae7e2d'",
+                        "onclick": "changeLanguage()"
+                      },
+                      "text": "EN"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "div",
+              "attributes": {
+                "style": "position: relative; margin: auto; width: 90%; height: 60%; background-color: #4a4a4a;"
+              },
+              "children": [
+                {
+                  "type": "div",
+                  "attributes": {
+                    "id": "popup-text",
+                    "style": "position: relative; width: 95%; padding-right: 2.5%; padding-left: 2.5%; height: 100%; color: #fff; overflow-y: scroll; overflow-x: hidden; word-wrap: break-word; overflow-wrap: break-word;"
+                  },
+                  "text": "loading..."
+                },
+                {
+                  "type": "style",
+                  "text": "#popup-text::-webkit-scrollbar {width: 10px;}#popup-text::-webkit-scrollbar-track {background: #4a4a4a;}#popup-text::-webkit-scrollbar-thumb {background: #888;}#popup-text::-webkit-scrollbar-thumb:hover {background: #a1a1a1;}"
+                },
+                {
+                  "type": "script",
+                  "text": "let languages = ['EN', 'FR', 'ES', 'DE']; let currentLanguageIndex = 0; let languageData = {}; function loadLanguageData() { console.log('popupfetch ausführen'); const rootPath = `${window.location.origin}`; console.log(`${rootPath}/packs/popuppack.json`);  fetch('${rootPath}/packs/popuppack.json') .then(response => response.json()) .then(data => { languageData = data; updateLanguageContent(); }); } function changeLanguage() { const langElement = document.getElementById('lang'); currentLanguageIndex = (currentLanguageIndex + 1) % languages.length; langElement.textContent = languages[currentLanguageIndex]; updateLanguageContent(); } function updateLanguageContent() { const currentLanguage = languages[currentLanguageIndex].toLowerCase(); const textElement = document.getElementById('popup-text'); if (languageData[currentLanguage]) { textElement.innerHTML = languageData[currentLanguage].cookieContent; } else { textElement.innerHTML = 'Language content not available.'; } } document.addEventListener('DOMContentLoaded', loadLanguageData);"
+                }
+              ]
+            },
+            {
+              "type": "div",
+              "attributes": {
+                "style": "position: relative; margin: auto; margin-top: 2vh; width: 90%; height: 8vh;"
+              },
+              "children": [
+                {
+                  "type": "button",
+                  "attributes": {
+                    "id": "closePopup",
+                    "onclick": "popupCokkieff(true);",
+                    "style": "padding: 10px;background-color: #4CAF50;color: white;border: none;border-radius: 5px;cursor: pointer;",
+                    "onmouseover": "this.style.background='#439c46'",
+                    "onmouseout": "this.style.background='#4CAF50'"
+                  },
+                  "text": "accept"
+                }
+              ]
+            },
+            {
+              "type": "script",
+              "text": "function popupCokkieff(value) {const e=value; document.cookie = `myPopupCookie=${e}; path=/; expires=${new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toUTCString()}`; const bp=document.getElementById('Data-and-Cookie-Popup-Dynamic-Generative-Important'); bp.outerHTML=''; console.log('popup vom sreen löschen');}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "module",
+      "name": "ContentBuilder",
+      "scriptURL": "/CONTENT/modules/ContentBuilder.js",
+      "meta": {
+        "name": "tool-navbar",
+        "id": "tool-navbar"
+      },
+      "content": [
+        {
+          "type": "div",
+          "attributes": {
+            "style": "background-color: var(--bgdatanavbar); color: white; font-size: 12px; width: auto; height: auto; padding: 0 10px;"
+          },
+          "children": [
+            {
+              "type": "div",
+              "attributes": {
+
+              },
+              "text": "link"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "module",
+      "name": "ContentBuilder",
+      "scriptURL": "/CONTENT/modules/ContentBuilder.js",
+      "meta": {
+        "name": "loading-line",
+        "id": "loading-line"
+      },
+      "content": [
+        {
+          "type": "div",
+          "attributes": {
+            "style": "width: 100vw; height: 1vh; background-color: var(--bgdatanavbar);"
+          },
+          "children": [
+            {
+              "type": "div",
+              "attributes": {
+                "id": "loading-bar",
+                "style": "width: 0%; height: 1vh; background-color: var(--loadingblue);"
+              }
+            },
+            {
+              "type": "script",
+              "text": "const l = document.getElementById('loading-bar'); /*später kann diese funktion loadingvisualer(35); zum anzeigen des loadings fortschritt genutzt werden*/ function loadingvisualer(i) {l.style.transition = 'width 0.2s ease-in-out'; l.style.width = `${i}%`;}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "module",
+      "name": "PageBoard",
+      "scriptURL": "",
+      "meta": {
+        "name": "builder",
+        "id": "builder"
+      },
+      "content": [
+
+      ]
+    }
+  ]
+}

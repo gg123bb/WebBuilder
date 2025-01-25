@@ -1,0 +1,9 @@
+{
+  "name": "CjalogWebBuilder",
+  "short_name": "Cjalog",
+  "theme_color": "#2196f3",
+  "background_color": "#2196f3",
+  "display": "fullscreen",
+  "scope": "/",
+  "start_url": "/index.html"
+}

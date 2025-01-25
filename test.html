@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="de" xml:lang="de">
+<head>
+    <title>Testseite</title>
+    <script type="text/javascript">
+        var checkRes = false; 		//Zeigt an, ob der div vergrößert werden soll oder nicht
+        var standTop = false; 		//Gibt die Anfangsposition der Maus an - wird später eine Zahl
+        var standLeft = false;		//Gibt die Anfangsposition der Maus an - wird später eine Zahl
+        var breite = 250		//Breite der Box - muss angepasst werden wenn die Box Breiter / schmaler wird
+        var hoehe = 500;		//Höhe der Box - muss angepasst werden wenn die Box höher / niedriger wird
+        function change(was){
+            checkRes = !checkRes;
+            breite = parseFloat(was.parentNode.style.width);
+            hoehe = parseFloat(was.parentNode.style.height);
+            if(checkRes){
+                standTop = false;
+                standLeft = false;
+                document.getElementsByTagName('body')[0].style.cursor = "se-resize";
+            } else {
+                document.getElementsByTagName('body')[0].style.cursor = "default";
+            }
+        }
+        function bewegt(evt){
+            if(!checkRes) return; 		//Wenn die Box nicht verändert werden soll, dann wird der Funktionsaufruf abgebrochen
+            if(!standTop){
+                standTop = evt.clientY;
+                standLeft = evt.clientX;
+            }
+            var diffY = standTop - evt.clientY;
+            var diffX = standLeft - evt.clientX;
+            if((breite - diffX) > 0)
+                document.getElementById('feld').style.width = breite - diffX + "px";
+            if((hoehe - diffY) > 0)
+                document.getElementById('feld').style.height = hoehe - diffY + "px";
+        }
+        document.onmousemove = bewegt;
+    </script>
+    <style type="text/css">
+        body, html{
+            height:100%;
+            width:100%;
+            overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+<div style="background-color:#f00; height:500px; width:250px; position:absolute; left:120px; top:210px;" id="feld">
+    <div style="background-color:#000; position:absolute; bottom:0px; right:0px; width:10px; height:10px; cursor:se-resize;" onclick="change(this)"></div>
+</div>
+</body>
+</html>
