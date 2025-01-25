@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie-Einstellungen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+<h1>Cookie-Einstellungen</h1>
+<label class="switch">
+    <input type="checkbox" id="cookieToggle" onchange="toggleCookies(this.checked)">
+    <span class="slider"></span>
+</label>
+<span id="status">Cookies sind deaktiviert.</span>
+<script>
+    // Funktion zum Ein- und Ausschalten von Cookies
+    function toggleCookies(accept) {
+        if (accept) {
+            document.cookie = "userConsent=true; path=/; max-age=" + (60 * 60 * 24 * 30); // 30 Tage
+            document.getElementById("status").innerText = "Cookies sind aktiviert.";
+        } else {
+            document.cookie = "userConsent=false; path=/; max-age=0"; // Cookies löschen
+            document.getElementById("status").innerText = "Cookies sind deaktiviert.";
+        }
+    }
+
+    // Überprüfen des Cookie-Status beim Laden der Seite
+    window.onload = function() {
+        const cookiesEnabled = document.cookie.split('; ').find(row => row.startsWith('userConsent='));
+        if (cookiesEnabled) {
+            const consentValue = cookiesEnabled.split('=')[1];
+            document.getElementById("status").innerText = consentValue === "true" ? "Cookies sind aktiviert." : "Cookies sind deaktiviert.";
+            // Setze den Slider entsprechend
+            document.getElementById("cookieToggle").checked = consentValue === "true";
+        }
+    }
+</script>
+</body>
+</html>

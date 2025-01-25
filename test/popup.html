@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Popup Beispiel</title>
+    <style>
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            padding: 20px;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="cookiePopup" class="popup">
+    <h2 id="popupTitle"></h2>
+    <p id="popupMessage"></p>
+    <button id="acceptCookies"></button>
+    <button id="rejectCookies"></button>
+</div>
+
+<!-- Inline JSON und JavaScript für das Popup -->
+<script type="application/json" id="popupData">
+    {
+        "modules": [
+            {
+                "type": "module",
+                "name": "cookiePopup",
+                "meta": {
+                    "title": "Cookie-Zustimmung",
+                    "message": "Wir verwenden Cookies, um Ihnen eine bessere Erfahrung zu bieten. Stimmen Sie zu?",
+                    "acceptText": "Akzeptieren",
+                    "rejectText": "Ablehnen"
+                }
+            }
+        ]
+    }
+</script>
+
+<script>
+    // JSON-Daten abrufen
+    const popupData = JSON.parse(document.getElementById("popupData").textContent);
+    const cookiePopupModule = popupData.modules.find(module => module.name === 'cookiePopup');
+
+    // Popup-Inhalt generieren
+    const popupTitle = document.getElementById("popupTitle");
+    const popupMessage = document.getElementById("popupMessage");
+    const acceptButton = document.getElementById("acceptCookies");
+    const rejectButton = document.getElementById("rejectCookies");
+
+    if (cookiePopupModule) {
+        popupTitle.textContent = cookiePopupModule.meta.title;
+        popupMessage.textContent = cookiePopupModule.meta.message;
+        acceptButton.textContent = cookiePopupModule.meta.acceptText;
+        rejectButton.textContent = cookiePopupModule.meta.rejectText;
+
+        document.getElementById("cookiePopup").style.display = "block";
+
+        acceptButton.addEventListener('click', () => {
+            alert('Cookies akzeptiert!');
+            document.getElementById("cookiePopup").style.display = "none";
+            runCustomScript();
+        });
+
+        rejectButton.addEventListener('click', () => {
+            alert('Cookies abgelehnt!');
+            document.getElementById("cookiePopup").style.display = "none";
+        });
+    }
+
+    function runCustomScript() {
+        console.log("Custom Script ausgeführt!");
+        // Hier kann weiteres Script oder eine Funktion hinzugefügt werden.
+    }
+</script>
+
+</body>
+</html>
