@@ -4,19 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Magic Drag System - CJALOG</title>
+
     <style>
+        *{
+            padding: 0;
+            margin: 0;
+            font-family: "Arial Black", Arial, Helvetica, sans-serif;
+        }
+        :root{}
         body {
             padding: 0;
             margin: 0;
         }
-
         #drag-container {
             position: relative;
             width: auto;
             height: 100vh;
             overflow: hidden;
         }
-
         .draggable {
             position: absolute;
             width: 100px;
@@ -34,18 +39,15 @@
             transition: transform 0.1s ease, border 0.2s ease;
             z-index: 1;
         }
-
         .draggable:active {
             cursor: grabbing;
             border: 2px solid #27ae60;
             box-shadow: black 0 0 10px;
         }
-
         .drag-area {
             position: absolute;
             z-index: 10;
         }
-
         .aktionfield {
             position: absolute;
             border: 2px dashed red;
@@ -54,13 +56,14 @@
 </head>
 <body>
 <div id="drag-container">
+    <div><center><h1><b>Drag Resize Clip and Repositioning Test</b></h1></center></div>
     <div class="draggable" id="drag1" style="top: 100px; left: 50px;">Resize & Drag</div>
     <div class="draggable" id="drag2" style="top: 200px; left: 200px;">Resize & Drag</div>
     <div class="draggable" id="drag3" style="top: 300px; left: 350px;">Resize & Drag</div>
     <div class="draggable" id="drag4" style="top: 400px; left: 500px;">Resize & Drag</div>
 
     <!-- Dynamische Ereignisfelder -->
-    <div class="aktionfield" style="top: 50px; left: 50px; width: 150px; height: 150px;" data-widthaktion="200" data-heightaktion="200" data-positionaktion="top: 0px; left: 0px;" data-couldown="7"></div>
+    <div class="aktionfield" style="top: 50vh; left: 50vw; width: 150px; height: 150px;" data-widthaktion="1000" data-heightaktion="200" data-positionaktion="top: 0px; left: 0px;" data-couldown="preview"></div>
 </div>
 
 <script>
@@ -72,20 +75,24 @@
             options = options || {};
             var minWidth = 60;
             var minHeight = 40;
-            var SNAP_MARGINS = options.snapEdge || 5;
+            var SNAP_MARGINS = options.snapEdge || 20;
             var RESIZE_MARGIN_INNER = options.resizeInnerM || 5;
             var RESIZE_MARGIN_OUTER = options.resizeOuterM || 5;
             var onRightEdge, onBottomEdge, onLeftEdge, onTopEdge;
-            var e, b, x, y, inLR, inTB, preSnap;
+            var e, b, x, y, inLR, inTB;
             var clicked = null;
             var redraw = false;
             var _usePercent = false;
-
-            pane.style.boxSizing = "border-box";
-
             var ghostpane = document.createElement('div');
             ghostpane.id = "DRSghost";
+            ghostpane.style.opacity = 0;
+            ghostpane.style.backgroundColor = "var(--preview-color, rgba(0,0,0,0.2))";
+            ghostpane.style.pointerEvents = "none";
+            ghostpane.style.position = "absolute";
+            ghostpane.style.zIndex = 9998;  // Make sure it's behind the dragged element
             document.body.appendChild(ghostpane);
+
+            pane.style.boxSizing = "border-box";
 
             var handles = handle instanceof Array ? handle : [handle];
             var onHTMLhandle;
@@ -231,7 +238,6 @@
                 if (c.width !== null) h.ele.style.width = c.width + "px";
                 return h;
             }
-
             function getHandleCoords(h) {
                 var DO = 30;
                 var types = {
@@ -367,17 +373,89 @@
                     var bounds = getBounds();
                     // Snap to bounds
                     if (bounds.length) {
-                        preSnap = {width: b.width, height: b.height};
+                        var preSnap = {width: b.width, height: b.height};
                         bounds.unshift(pane);
                         preSnap.to = bounds;
                         setBounds.apply(this, preSnap.to);
-                    } else {
-                        preSnap = null;
                     }
                     hintHide();
                 } else if (clicked && clicked.isResizing) {
                     setBounds(pane);
                 }
+
+                // Handle wait and preview actions
+                const aktionfields = document.querySelectorAll('.aktionfield');
+                aktionfields.forEach(field => {
+                    const fieldRect = field.getBoundingClientRect();
+                    const elementRect = pane.getBoundingClientRect();
+                    const centerX = elementRect.left + elementRect.width / 2;
+                    const centerY = elementRect.top + elementRect.height / 2;
+                    if (centerX > fieldRect.left &&
+                        centerX < fieldRect.right &&
+                        centerY > fieldRect.top &&
+                        centerY < fieldRect.bottom) {
+
+                        if (field.dataset.widthaktion) {
+                            pane.style.width = field.dataset.widthaktion;
+                        }
+                        if (field.dataset.heightaktion) {
+                            pane.style.height = field.dataset.heightaktion;
+                        }
+                        if (field.dataset.positionaktion) {
+                            const positions = field.dataset.positionaktion.split(';');
+                            positions.forEach(position => {
+                                const [prop, value] = position.split(':');
+                                if (prop && value) {
+                                    pane.style[prop.trim()] = value.trim();
+                                }
+                            });
+                        }
+                        if (field.dataset.animation) {
+                            pane.style.animation = field.dataset.animation;
+                        }
+                        if (field.dataset.transition) {
+                            pane.style.transition = field.dataset.transition;
+                        }
+                        if (field.dataset.couldown === 'wait') {
+                            // No action needed as the change happens on mouseup
+                        } else if (field.dataset.couldown === 'preview') {
+                            setBounds(ghostpane, pane.offsetLeft, pane.offsetTop, pane.offsetWidth, pane.offsetHeight);
+                            ghostpane.style.opacity = 0.5;
+                            ghostpane.style.zIndex = 1000;
+                            document.addEventListener('mouseup', () => {
+                                pane.style.left = ghostpane.style.left;
+                                pane.style.top = ghostpane.style.top;
+                                ghostpane.style.opacity = 0;
+                            }, { once: true });
+                        } else {
+                            setTimeout(() => {
+                                if (!clicked) {
+                                    if (field.dataset.widthaktion) {
+                                        pane.style.width = field.dataset.widthaktion;
+                                    }
+                                    if (field.dataset.heightaktion) {
+                                        pane.style.height = field.dataset.heightaktion;
+                                    }
+                                    if (field.dataset.positionaktion) {
+                                        const positions = field.dataset.positionaktion.split(';');
+                                        positions.forEach(position => {
+                                            const [prop, value] = position.split(':');
+                                            if (prop && value) {
+                                                pane.style[prop.trim()] = value.trim();
+                                            }
+                                        });
+                                    }
+                                    if (field.dataset.animation) {
+                                        pane.style.animation = field.dataset.animation;
+                                    }
+                                    if (field.dataset.transition) {
+                                        pane.style.transition = field.dataset.transition;
+                                    }
+                                }
+                            }, parseInt(field.dataset.couldown || 0));
+                        }
+                    }
+                });
 
                 // Keep the element at the front
                 pane.style.zIndex = "1000";
@@ -412,33 +490,6 @@
                         }
                     }
                 });
-
-                const aktionfields = document.querySelectorAll('.aktionfield');
-                aktionfields.forEach(field => {
-                    const fieldRect = field.getBoundingClientRect();
-                    const elementRect = element.getBoundingClientRect();
-                    if (elementRect.left > fieldRect.left &&
-                        elementRect.right < fieldRect.right &&
-                        elementRect.top > fieldRect.top &&
-                        elementRect.bottom < fieldRect.bottom) {
-
-                        if (field.dataset.widthaktion) {
-                            element.style.width = field.dataset.widthaktion + 'px';
-                        }
-                        if (field.dataset.positionaktion) {
-                            const positions = field.dataset.positionaktion.split(';');
-                            positions.forEach(position => {
-                                const [prop, value] = position.split(':');
-                                element.style[prop.trim()] = value.trim();
-                            });
-                        }
-                        if (field.dataset.couldown) {
-                            setTimeout(() => {
-                                checkOverlap(element);
-                            }, field.dataset.couldown);
-                        }
-                    }
-                });
             }
 
             // utility functions
@@ -457,7 +508,7 @@
                     setBounds(pane);
                 },
                 snapFullScreen: function() {
-                    preSnap = {width: b.width, height: b.height, top: b.top, left: b.left};
+                    var preSnap = {width: b.width, height: b.height, top: b.top, left: b.left};
                     preSnap.to = [pane, 0, 0, window.innerWidth, window.innerHeight];
                     setBounds.apply(this, preSnap.to);
                 },
@@ -488,6 +539,17 @@
             }
             // Initialize DRS for each element
             core.util.DRS.makeDRS(draggable, 'full');
+        });
+
+        // Ensure draggable elements are always on top while dragging
+        const container = document.getElementById('drag-container');
+        container.addEventListener('mousedown', (e) => {
+            const target = e.target.closest('.draggable');
+            if (target) {
+                // Bring the clicked element to the front
+                draggables.forEach(draggable => draggable.style.zIndex = 1);
+                target.style.zIndex = 1000;
+            }
         });
     });
 </script>

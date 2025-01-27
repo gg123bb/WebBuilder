@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimized Drag System</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #drag-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f0f0f0;
+        }
+
+        .draggable {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            cursor: grab;
+            border: 2px solid #2ecc71;
+            user-select: none;
+            touch-action: none;
+            z-index: 1;
+            transition: transform 0.2s ease, border 0.2s ease;
+        }
+
+        .draggable:active {
+            cursor: grabbing;
+            z-index: 1000;
+            border-color: #27ae60;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .snap-zone {
+            position: absolute;
+            background-color: rgba(0, 255, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+<div id="drag-container">
+    <div class="draggable" id="drag1" style="top: 100px; left: 50px;">Drag Me</div>
+    <div class="draggable" id="drag2" style="top: 200px; left: 200px;">Drag Me</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('drag-container');
+        const draggables = document.querySelectorAll('.draggable');
+        let activeElement = null;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('mousedown', (e) => {
+                activeElement = draggable;
+                const rect = draggable.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                draggable.style.zIndex = 1000;
+                document.body.style.cursor = 'grabbing';
+            });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!activeElement) return;
+
+            const newX = e.clientX - offsetX;
+            const newY = e.clientY - offsetY;
+            activeElement.style.left = `${newX}px`;
+            activeElement.style.top = `${newY}px`;
+
+            // Snap logic
+            draggables.forEach(other => {
+                if (other === activeElement) return;
+
+                const rect1 = activeElement.getBoundingClientRect();
+                const rect2 = other.getBoundingClientRect();
+                const snapDistance = 20;
+
+                // Horizontal snapping
+                if (Math.abs(rect1.right - rect2.left) < snapDistance) {
+                    activeElement.style.left = `${rect2.left - rect1.width}px`;
+                } else if (Math.abs(rect1.left - rect2.right) < snapDistance) {
+                    activeElement.style.left = `${rect2.right}px`;
+                }
+
+                // Vertical snapping
+                if (Math.abs(rect1.bottom - rect2.top) < snapDistance) {
+                    activeElement.style.top = `${rect2.top - rect1.height}px`;
+                } else if (Math.abs(rect1.top - rect2.bottom) < snapDistance) {
+                    activeElement.style.top = `${rect2.bottom}px`;
+                }
+            });
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (activeElement) {
+                activeElement.style.zIndex = 1;
+                activeElement = null;
+                document.body.style.cursor = 'default';
+            }
+        });
+
+        document.addEventListener('mouseleave', () => {
+            activeElement = null;
+            document.body.style.cursor = 'default';
+        });
+    });
+</script>
+</body>
+</html>
