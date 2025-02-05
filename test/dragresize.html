@@ -11,7 +11,15 @@
             margin: 0;
             font-family: "Arial Black", Arial, Helvetica, sans-serif;
         }
-        :root{}
+        :root{
+            --dragfield-default-color: #3498db;
+            --dragfield-default-border-color: #2ecc71;
+            --dragfield-default-border-dragged-color: #27ae60;
+            --dragfield-default-shadow-color: #000000;
+            --preview-default-color: #db3434;
+
+            --aktionfield-default-color: #3498db;
+        }
         body {
             padding: 0;
             margin: 0;
@@ -26,14 +34,14 @@
             position: absolute;
             width: 100px;
             height: 100px;
-            background-color: #3498db;
+            background-color: var(--dragfield-default-color);
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             border-radius: 5px;
             cursor: grab;
-            border: 2px solid #2ecc71;
+            border: 2px solid var(--dragfield-default-border-color);
             user-select: none;
             touch-action: none;
             transition: transform 0.1s ease, border 0.2s ease;
@@ -41,8 +49,8 @@
         }
         .draggable:active {
             cursor: grabbing;
-            border: 2px solid #27ae60;
-            box-shadow: black 0 0 10px;
+            border: 2px solid var(--dragfield-default-border-dragged-color);
+            box-shadow: var(--dragfield-default-shadow-color) 0 0 10px;
         }
         .drag-area {
             position: absolute;
@@ -51,6 +59,28 @@
         .aktionfield {
             position: absolute;
             border: 2px dashed red;
+        }
+        .random {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 15vw;
+            height: 15vh;
+            top: 25vh;
+            left: 50vw;
+            background-color: var(--dragfield-default-border-color);
+            border: 2px solid var(--dragfield-default-color);
+            color: white;
+        }
+        #drag-container, body {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f0f0f0;
+            user-select: none;
+            touch-action: none;
         }
     </style>
 </head>
@@ -62,8 +92,16 @@
     <div class="draggable" id="drag3" style="top: 300px; left: 350px;">Resize & Drag</div>
     <div class="draggable" id="drag4" style="top: 400px; left: 500px;">Resize & Drag</div>
 
+    <div class="random">random test element</div>
+
     <!-- Dynamische Ereignisfelder -->
-    <div class="aktionfield" style="top: 50vh; left: 50vw; width: 150px; height: 150px;" data-widthaktion="1000" data-heightaktion="200" data-positionaktion="top: 0px; left: 0px;" data-couldown="preview"></div>
+    <div class="aktionfield" style="top: -50vh; left: 0vw; width: 100vw; height: 50vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="preview"></div>
+    <div class="aktionfield" style="top: 100vh; left: 0vw; width: 100vw; height: 50vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="preview"></div>
+    <div class="aktionfield" style="top: -50vh; left: -50vw; width: 50vw; height: 200vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="preview"></div>
+    <div class="aktionfield" style="top: -50vh; left: 100vw; width: 50vw; height: 200vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="preview"></div>
+    <div class="aktionfield" style="top: 0vh; left: 0vw; width: 30vw; height: 15vh; border: none;" data-widthaktion="30" data-heightaktion="15" data-positionaktion="top: 0px; left: 0px;" data-couldown="preview"></div>
+    <div class="aktionfield" style="top: 0vh; left: 30vw; width: 40vw; height: 15vh; border: none;" data-widthaktion="40" data-heightaktion="15" data-positionaktion="top: 0px; left: 30vw;" data-couldown="preview"></div>
+    <div class="aktionfield" style="top: 0vh; left: 70vw; width: 30vw; height: 15vh; border: none;" data-widthaktion="30" data-heightaktion="15" data-positionaktion="top: 0px; left: 70vw;" data-couldown="preview"></div>
 </div>
 
 <script>
@@ -86,10 +124,10 @@
             var ghostpane = document.createElement('div');
             ghostpane.id = "DRSghost";
             ghostpane.style.opacity = 0;
-            ghostpane.style.backgroundColor = "var(--preview-color, rgba(0,0,0,0.2))";
+            ghostpane.style.backgroundColor = "var(--preview-default-color, rgba(0,0,0,0.5))";
             ghostpane.style.pointerEvents = "none";
             ghostpane.style.position = "absolute";
-            ghostpane.style.zIndex = 9998;  // Make sure it's behind the dragged element
+            ghostpane.style.zIndex = 1002;  // Ensure it's in front of the dragged element
             document.body.appendChild(ghostpane);
 
             pane.style.boxSizing = "border-box";
@@ -396,10 +434,10 @@
                         centerY < fieldRect.bottom) {
 
                         if (field.dataset.widthaktion) {
-                            pane.style.width = field.dataset.widthaktion;
+                            pane.style.width = field.dataset.widthaktion.includes('%') || field.dataset.widthaktion.includes('vw') ? field.dataset.widthaktion : field.dataset.widthaktion + '%';
                         }
                         if (field.dataset.heightaktion) {
-                            pane.style.height = field.dataset.heightaktion;
+                            pane.style.height = field.dataset.heightaktion.includes('%') || field.dataset.heightaktion.includes('vh') ? field.dataset.heightaktion : field.dataset.heightaktion + '%';
                         }
                         if (field.dataset.positionaktion) {
                             const positions = field.dataset.positionaktion.split(';');
@@ -431,10 +469,10 @@
                             setTimeout(() => {
                                 if (!clicked) {
                                     if (field.dataset.widthaktion) {
-                                        pane.style.width = field.dataset.widthaktion;
+                                        pane.style.width = field.dataset.widthaktion.includes('%') || field.dataset.widthaktion.includes('vw') ? field.dataset.widthaktion : field.dataset.widthaktion + '%';
                                     }
                                     if (field.dataset.heightaktion) {
-                                        pane.style.height = field.dataset.heightaktion;
+                                        pane.style.height = field.dataset.heightaktion.includes('%') || field.dataset.heightaktion.includes('vh') ? field.dataset.heightaktion : field.dataset.heightaktion + '%';
                                     }
                                     if (field.dataset.positionaktion) {
                                         const positions = field.dataset.positionaktion.split(';');
