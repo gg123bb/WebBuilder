@@ -24,6 +24,11 @@
             --default-loading-circle-animation-color: #c3bf6d;
             --default-loading-circle-complete-color: #66ea72;
 
+            --field-gray-defualt-bgcolor: #4A4A4AFF;
+            --field-gray-light-color: #6a6a6a;
+
+            --field-dark-gray-button: #515151;
+            --field-dark-gray-button-hover: #252525;
         }
         body {
             padding: 0;
@@ -35,31 +40,34 @@
             height: 100vh;
             overflow: hidden;
         }
-        .draggable {
+        .DRS {
             position: absolute;
-            width: 100px;
-            height: 100px;
-            background-color: var(--dragfield-default-color);
-            color: white;
+            /*user-select: ;
+            touch-action: ;*/
+            z-index: 1;
+        }
+        .box {
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 5px;
-            cursor: grab;
+            height: 100px;
+            width: 100px;
             border: 2px solid var(--dragfield-default-border-color);
-            user-select: none;
-            touch-action: none;
+            border-radius: 0px;
+            cursor: grab;
+            background-color: var(--dragfield-default-color);
+            color: white;
             transition: transform 0.1s ease, border 0.2s ease;
-            z-index: 1;
         }
-        .draggable:active {
+        .box:active {
             cursor: grabbing;
             border: 2px solid var(--dragfield-default-border-dragged-color);
             box-shadow: var(--dragfield-default-shadow-color) 0 0 10px;
+            border-radius: 5px;
         }
         .drag-area {
             position: absolute;
-            z-index: 10;
+            z-index: 1;
         }
         .aktionfield {
             position: absolute;
@@ -99,24 +107,103 @@
             transform: scaleX(0.5);
         }
 
+        .trackpoint {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--trackpoint-color, #ff5722);
+            border-radius: 50%;
+            cursor: move;
+            z-index: 1001;
+            box-shadow: 0 0 3px rgba(0,0,0,0.3);
+            pointer-events: all;
+        }
+
+
+    </style>
+    <style>
+        .box-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        .box-pin {
+            grid-column: 1;
+        }
+        .box-move {
+            grid-column: 2;
+            grid-column-start: 2;
+            grid-column-end: 4;
+        }
+        .box-move:active {
+            cursor: move;
+        }
+        .box-move:hover {
+            cursor: move;
+        }
+        .box-close {
+            grid-column: 4;
+        }
+        .box-button:hover {
+            background-color: var(--field-dark-gray-button-hover);
+        }
+        .box-content {
+            position: relative;
+            width: 100%;
+            height: 85%;
+            background-color: var(--field-gray-defualt-bgcolor);
+            color: #e4e4e4;
+            overflow: auto;
+            box-sizing: border-box;
+            user-select: text; /* Textauswahl wieder aktivieren */
+            touch-action: auto; /* Touch-Aktionen wieder aktivieren */
+            pointer-events: auto; /* Sicherstellen, dass Mausinteraktionen funktionieren */
+            z-index: 10;
+        }
+
+
     </style>
 </head>
 <body>
 <div id="drag-container">
     <div><center><h1><b>Drag Resize Clip and Repositioning Test</b></h1></center></div>
-    <div class="draggable" id="drag1" style="top: 10vh; left: 10vw;" data-clipping="true">Resize & Drag</div>
-    <div class="draggable" id="drag2" style="top: 20vh; left: 20vw;">Resize & Drag</div>
-    <div class="draggable" id="drag3" style="top: 30vh; left: 35vw;">Resize & Drag</div>
-    <div class="draggable" id="drag4" style="top: 40vh; left: 50vw;" data-clipping="true">Resize & Drag</div>
-
+    <!-- Constanze DRS Elemente -->
+    <div class="DRS" id="cdrs1" style="top: 0vh; left: -2vw; height: 100vw; width: 2vw; background-color: transparent !important; box-shadow: none !important; border-color: transparent !important;" data-drag="0" data-resizing="0" data-clipping="true"></div> <!--right-->
+    <div class="DRS" id="cdrs2" style="top: -2vh; left: 0vw; height: 2vw; width: 100vw; background-color: transparent !important; box-shadow: none !important; border-color: transparent !important;" data-drag="0" data-resizing="0" data-clipping="true"></div> <!--top-->
+    <div class="DRS" id="cdrs3" style="top: 0vh; left: 100vw; height: 100vw; width: 2vw; background-color: transparent !important; box-shadow: none !important; border-color: transparent !important;" data-drag="0" data-resizing="0" data-clipping="true"></div> <!--left-->
+    <div class="DRS" id="cdrs4" style="top: 98vh; left: 0vw; height: 2vw; width: 100vw; background-color: transparent !important; box-shadow: none !important; border-color: transparent !important;" data-drag="0" data-resizing="0" data-clipping="true"></div> <!--bottom-->
+    <!-- Dynamische DRS Elemente -->
+    <div class="DRS box" id="drs1" style="top: 10vh; left: 10vw;" data-drag="true" data-resizing="true" data-clipping="true">DRS</div>
+    <div class="DRS box" id="drs2" style="top: 20vh; left: 20vw;" data-drag="true" data-resizing="true" data-clipping="true">DRS</div>
+    <div class="DRS box" id="drs3" style="top: 30vh; left: 35vw;" data-drag="true" data-resizing="true" data-clipping="true">DRS</div>
+    <div class="DRS" id="drs4" style="position: absolute; top: 40vh; left: 50vw; width: 30vw; height: 30vh; background-color: var(--field-gray-defualt-bgcolor); border: var(--field-gray-light-color) 8px solid; border-radius: 5px; box-shadow: none;" data-drag="true" data-resizing="true" data-clipping="true">
+        <div class="trackpoint" data-parent-id="drs4" style="position: absolute; width: 40%; height: 3vh; top: 0px; left: 30%; background-color: #2196F3;"></div>
+        <div style="position: relative; width: auto; height: 4vh; background-color: var(--field-gray-light-color); z-index: 10;">
+            <div class="box-grid">
+                <div class="box-pin box-button">
+                    <div style="position: relative; margin: auto; top: 0.4vh; width: 60%; height: 2vh; background-color: #fff;"></div>
+                </div>
+                <div class="box-move">
+                    <div style="position: relative; margin: auto; top: 25%; width: 80%; height: 1vh; background-color: #dadada; border-radius: 50vw"></div>
+                </div>
+                <div class="box-close box-button">
+                    <div style="position: relative; margin: auto; top: 0.4vh; width: 60%; height: 2vh; background-color: #fff;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="box-content">
+            sdad<br>sada<br>sdad<br>sada<br>sdad<br>sada<br>sdad<br>sada<br>
+        </div>
+    </div>
     <div class="random">random test element</div>
-
-    <!-- Dynamische Ereignisfelder -->
+    <!-- Constanze Ereignisfelder -->
     <div class="aktionfield" id="ak0" style="top: -50vh; left: 0vw; width: 100vw; height: 50vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="0" data-type="preview"></div><!--left-->
     <div class="aktionfield" id="ak1" style="top: 100vh; left: 0vw; width: 100vw; height: 50vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="0" data-type="preview"></div><!--bottom-->
-    <div class="aktionfield" id="ak2" style="top: -50vh; left: -50vw; width: 50vw; height: 200vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="0" data-type="preview"></div><!--top-->
+    <div class="aktionfield" id="ak2" style="top: -50vh; left: -50vw; width: 50vw; height: 200vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="0" data-type="preview" data-clipping="true"></div><!--top-->
     <div class="aktionfield" id="ak3" style="top: -50vh; left: 100vw; width: 50vw; height: 200vh; border: none;" data-widthaktion="20" data-heightaktion="20" data-positionaktion="top: 0px; left: 0px;" data-couldown="0" data-type="preview"></div><!--right-->
-    <!--Innere Felder-->
+    <!--Dynamische Ereignisfelder-->
     <div class="aktionfield" id="ak4" style="top: 0vh; left: 0vw; width: 30vw; height: 15vh; border: none;" data-widthaktion="30" data-heightaktion="15" data-positionaktion="top: 0px; left: 0px;"  data-couldown="350" data-type="preview"></div>
     <div class="aktionfield" id="ak5" style="top: 0vh; left: 30vw; width: 40vw; height: 15vh; border: none;" data-widthaktion="40" data-heightaktion="15" data-positionaktion="top: 0px; left: 30vw;" data-couldown="350" data-type="preview"></div>
     <div class="aktionfield" id="ak6" style="top: 0vh; left: 70vw; width: 30vw; height: 15vh; border: none;" data-widthaktion="30" data-heightaktion="15" data-positionaktion="top: 0px; left: 70vw;" data-couldown="350" data-type="preview"></div>

@@ -73,7 +73,7 @@ core.util.DRS = function() {
                 return false;
             }
 
-            const draggables = document.querySelectorAll('.draggable');
+            const drsElements = document.querySelectorAll('.DRS');
             const rect1 = element.getBoundingClientRect();
             const GRID_SIZE = 10;
             const SNAP_THRESHOLD = 20;
@@ -85,7 +85,7 @@ core.util.DRS = function() {
             const centerX = rect1.left + rect1.width / 2;
             const centerY = rect1.top + rect1.height / 2;
 
-            draggables.forEach(other => {
+            drsElements.forEach(other => {
                 if (other === element || other.dataset.clipping !== "true") return;
 
                 const rect2 = other.getBoundingClientRect();
@@ -305,10 +305,148 @@ core.util.DRS = function() {
 
         function onMouseDown(e) { onDown(e); }
 
+        function createTrackpoint(element) {
+            // Prüfen ob bereits ein Trackpoint existiert
+            if (element.querySelector('.trackpoint')) return;
+
+            // Trackpoint erstellen
+            const trackpoint = document.createElement('div');
+            trackpoint.className = 'trackpoint';
+
+            // Standardwerte für Trackpoint
+            let trackpointSize = 12;
+            let trackpointX = -6;
+            let trackpointY = -6;
+            let trackpointColor = 'var(--trackpoint-color, #ff5722)';
+            let trackpointBorderRadius = '50%';
+            let trackpointZIndex = 1001;
+            let trackpointBoxShadow = '0 0 3px rgba(0,0,0,0.3)';
+
+            // Dynamische Attribute aus Datenattributen auslesen
+            if (element.dataset.trackpointSize) {
+                trackpointSize = parseInt(element.dataset.trackpointSize);
+                trackpointX = -trackpointSize/2;
+                trackpointY = -trackpointSize/2;
+            }
+
+            if (element.dataset.trackpointPosition) {
+                const position = element.dataset.trackpointPosition.split(',');
+                if (position.length === 2) {
+                    trackpointX = position[0].trim();
+                    trackpointY = position[1].trim();
+                }
+            }
+
+            if (element.dataset.trackpointColor) {
+                trackpointColor = element.dataset.trackpointColor;
+            }
+
+            if (element.dataset.trackpointBorderRadius) {
+                trackpointBorderRadius = element.dataset.trackpointBorderRadius;
+            }
+
+            if (element.dataset.trackpointZIndex) {
+                trackpointZIndex = element.dataset.trackpointZIndex;
+            }
+
+            if (element.dataset.trackpointBoxShadow) {
+                trackpointBoxShadow = element.dataset.trackpointBoxShadow;
+            }
+
+            // CSS für den Trackpoint setzen
+            trackpoint.style.cssText = `
+        position: absolute;
+        width: ${trackpointSize}px;
+        height: ${trackpointSize}px;
+        background-color: ${trackpointColor};
+        border-radius: ${trackpointBorderRadius};
+        top: ${trackpointY}px;
+        left: ${trackpointX}px;
+        cursor: move;
+        cursor: move;
+        z-index: ${trackpointZIndex};
+        box-shadow: ${trackpointBoxShadow};
+        pointer-events: all;
+    `;
+
+            // Benutzerdefiniertes CSS aus data-trackpoint-css
+            if (element.dataset.trackpointCss) {
+                const cssProperties = element.dataset.trackpointCss.split(';');
+                cssProperties.forEach(property => {
+                    if (property.trim()) {
+                        const [name, value] = property.split(':');
+                        if (name && value) {
+                            trackpoint.style[name.trim()] = value.trim();
+                        }
+                    }
+                });
+            }
+
+            // Dem Element zuordnen
+            trackpoint.dataset.parentId = element.id;
+            element.appendChild(trackpoint);
+
+            // Event-Listener für den Trackpoint
+            trackpoint.addEventListener('mousedown', function(e) {
+                e.stopPropagation();
+                trackpoint.isDragging = true;
+                trackpoint.offsetX = e.clientX;
+                trackpoint.offsetY = e.clientY;
+
+                // Trackpoint visuell hervorheben
+                const originalBoxShadow = trackpoint.style.boxShadow;
+                trackpoint.dataset.originalBoxShadow = originalBoxShadow;
+                trackpoint.style.boxShadow = element.dataset.trackpointActiveBoxShadow ||
+                    '0 0 8px rgba(255,87,34,0.8)';
+            });
+
+            return trackpoint;
+        }
+
+
+        function initializeExistingTrackpoints() {
+            const trackpoints = document.querySelectorAll('.trackpoint');
+
+            trackpoints.forEach(trackpoint => {
+                // Wenn kein parent-id gesetzt ist, versuche das Elternelement zu verwenden
+                if (!trackpoint.dataset.parentId) {
+                    const parentElement = trackpoint.closest('.DRS');
+                    if (parentElement && parentElement.id) {
+                        trackpoint.dataset.parentId = parentElement.id;
+                    }
+                }
+
+                // Event-Listener für den Trackpoint
+                trackpoint.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    trackpoint.isDragging = true;
+                    trackpoint.offsetX = e.clientX;
+                    trackpoint.offsetY = e.clientY;
+
+                    // Trackpoint visuell hervorheben
+                    const originalBoxShadow = trackpoint.style.boxShadow;
+                    trackpoint.dataset.originalBoxShadow = originalBoxShadow;
+
+                    const parentElement = document.getElementById(trackpoint.dataset.parentId);
+                    if (parentElement && parentElement.dataset.trackpointActiveBoxShadow) {
+                        trackpoint.style.boxShadow = parentElement.dataset.trackpointActiveBoxShadow;
+                    } else {
+                        trackpoint.style.boxShadow = '0 0 8px rgba(255,87,34,0.8)';
+                    }
+                });
+            });
+        }
+
         function onDown(e) {
             calc(e);
-            var isResizing = onRightEdge || onBottomEdge || onTopEdge || onLeftEdge;
-            var isMoving = !isResizing && canMove();
+
+            // Prüfen, ob Resizing für dieses Element aktiviert ist
+            var canResize = pane.dataset.resizing === "true";
+            var isResizing = canResize && (onRightEdge || onBottomEdge || onTopEdge || onLeftEdge);
+
+            // Prüfen, ob Drag für dieses Element aktiviert ist
+            var canDrag = pane.dataset.drag === "true";
+            var isMoving = canDrag && !isResizing && canMove();
 
             clicked = {
                 x: x,
@@ -325,18 +463,24 @@ core.util.DRS = function() {
                 onBottomEdge: onBottomEdge
             };
 
-            // Element in den Vordergrund bringen
+            // Element in den Vordergrund bringen, wenn es bewegt oder größengeändert wird
             if (isMoving || isResizing) {
-                const allDraggables = document.querySelectorAll('.draggable');
-                allDraggables.forEach(d => d.style.zIndex = "1");
+                const allDrsElements = document.querySelectorAll('.DRS');
+                allDrsElements.forEach(d => d.style.zIndex = "1");
                 pane.style.zIndex = "1000";
 
                 // Verhindern, dass das Event an andere Elemente weitergegeben wird
                 e.stopPropagation();
+                e.preventDefault();
             }
         }
 
         function canMove() {
+            // Wenn Drag nicht aktiviert ist, sofort false zurückgeben
+            if (pane.dataset.drag !== "true") {
+                return false;
+            }
+
             for (var i in handles) {
                 var h = drawDragHandle(handles[i]);
                 var c = h.coords;
@@ -369,6 +513,7 @@ core.util.DRS = function() {
                 e.style.position = "absolute";
                 e.style.pointerEvents = "all";
                 e.style.overflow = "hidden";
+                e.style.zIndex = "1";
                 pane.appendChild(e);
                 h.drawn = true;
                 h.ele = e;
@@ -457,19 +602,29 @@ core.util.DRS = function() {
             // Wenn nicht geklickt, nur Cursor-Stil aktualisieren
             if (!clicked) {
                 var db = document.documentElement || document.body;
-                if (onRightEdge && onBottomEdge || onLeftEdge && onTopEdge) {
-                    db.style.cursor = 'nwse-resize';
-                } else if (onRightEdge && onTopEdge || onBottomEdge && onLeftEdge) {
-                    db.style.cursor = 'nesw-resize';
-                } else if (onRightEdge || onLeftEdge) {
-                    db.style.cursor = 'ew-resize';
-                } else if (onBottomEdge || onTopEdge) {
-                    db.style.cursor = 'ns-resize';
+                var canResize = pane.dataset.resizing === "true";
+
+                if (canResize) {
+                    if (onRightEdge && onBottomEdge || onLeftEdge && onTopEdge) {
+                        db.style.cursor = 'nwse-resize';
+                    } else if (onRightEdge && onTopEdge || onBottomEdge && onLeftEdge) {
+                        db.style.cursor = 'nesw-resize';
+                    } else if (onRightEdge || onLeftEdge) {
+                        db.style.cursor = 'ew-resize';
+                    } else if (onBottomEdge || onTopEdge) {
+                        db.style.cursor = 'ns-resize';
+                    } else if (canMove()) {
+                        db.style.cursor = 'move';
+                    } else {
+                        db.style.cursor = 'default';
+                    }
                 } else if (canMove()) {
                     db.style.cursor = 'move';
                 } else {
                     db.style.cursor = 'default';
                 }
+                // Trackpoint-Bewegung auch behandeln, wenn nicht geklickt
+                handleTrackpointMove(ee);
                 return;
             }
 
@@ -498,7 +653,7 @@ core.util.DRS = function() {
                 return;
             }
 
-            // Bewegung
+            // Bewegung des Hauptelements
             if (clicked && clicked.isMoving) {
                 // Grundlegende Bewegung
                 pane.style.left = (e.clientX - clicked.x) + 'px';
@@ -506,93 +661,235 @@ core.util.DRS = function() {
 
                 // Clipping-Logik nur anwenden, wenn aktiviert
                 if (pane.dataset.clipping === "true") {
-                    const nearbyElements = Array.from(document.querySelectorAll('.draggable')).filter(el => el !== pane);
+                    const nearbyElements = Array.from(document.querySelectorAll('.DRS')).filter(el => el !== pane);
                     clipElements(pane, nearbyElements);
                 }
+
                 // Ladekreis-Position aktualisieren
                 loadingCircle.style.left = (ee.clientX - 17) + 'px';
                 loadingCircle.style.top = (ee.clientY - 15) + 'px';
 
-                isOverActionField = false;
-                const aktionfields = document.querySelectorAll('.aktionfield');
+                // Prüfen, ob das Element über einem Aktionsfeld ist
+                checkElementOverActionField(pane, ee);
+            }
 
-                aktionfields.forEach(field => {
-                    const fieldRect = field.getBoundingClientRect();
-                    const elementRect = pane.getBoundingClientRect();
-                    const centerX = elementRect.left + elementRect.width / 2;
-                    const centerY = elementRect.top + elementRect.height / 2;
+            // Trackpoint-Bewegung behandeln
+            handleTrackpointMove(ee);
+        }
 
-                    if (centerX > fieldRect.left && centerX < fieldRect.right &&
-                        centerY > fieldRect.top && centerY < fieldRect.bottom) {
-                        isOverActionField = true;
+// Neue Funktion, um zu prüfen, ob ein Element über einem Aktionsfeld ist
+        function checkElementOverActionField(element, event) {
+            isOverActionField = false;
+            const aktionfields = document.querySelectorAll('.aktionfield');
 
-                        if (!field.countdownStarted) {
-                            loadingCircle.style.animation = '';
-                            loadingCircle.style.border = '2px solid transparent';
-                            loadingCircle.style.borderTop = '2px solid var(--default-loading-circle-animation-color, #3498db)';
-                            loadingCircle.classList.remove('loading-circle-complete');
-                            isCountdownComplete = false;
-                        }
+            aktionfields.forEach(field => {
+                const fieldRect = field.getBoundingClientRect();
+                const elementRect = element.getBoundingClientRect();
+                const centerX = elementRect.left + elementRect.width / 2;
+                const centerY = elementRect.top + elementRect.height / 2;
 
-                        if (field.dataset.type === "preview") {
-                            if (field.dataset.widthaktion) {
-                                ghostpane.style.width = field.dataset.widthaktion.includes('%') ||
-                                field.dataset.widthaktion.includes('vw') ?
-                                    field.dataset.widthaktion :
-                                    field.dataset.widthaktion + '%';
-                            }
+                if (centerX > fieldRect.left && centerX < fieldRect.right &&
+                    centerY > fieldRect.top && centerY < fieldRect.bottom) {
+                    isOverActionField = true;
 
-                            if (field.dataset.heightaktion) {
-                                ghostpane.style.height = field.dataset.heightaktion.includes('%') ||
-                                field.dataset.heightaktion.includes('vh') ?
-                                    field.dataset.heightaktion :
-                                    field.dataset.heightaktion + '%';
-                            }
-
-                            if (field.dataset.positionaktion) {
-                                const positions = field.dataset.positionaktion.split(';');
-                                positions.forEach(position => {
-                                    const [prop, value] = position.split(':');
-                                    if (prop && value) {
-                                        ghostpane.style[prop.trim()] = value.trim();
-                                    }
-                                });
-                            }
-
-                            ghostpane.style.opacity = 0.5;
-                            ghostpane.style.zIndex = 1002;
-                        }
-
-                        const countdownValue = parseInt(field.dataset.couldown);
-                        if (countdownValue >= 0) {
-                            if (!field.countdownStarted) {
-                                field.countdownStarted = true;
-                                field.countdownTime = countdownValue;
-
-                                const secondsValue = countdownValue / 1000;
-                                loadingCircle.style.animation = `spin ${secondsValue}s linear`;
-
-                                field.countdownTimer = setTimeout(() => {
-                                    handleCountdownComplete(field);
-                                }, countdownValue);
-                            }
-                            loadingCircle.style.display = 'block';
-                        }
-                    } else {
-                        if (field.countdownStarted) {
-                            clearTimeout(field.countdownTimer);
-                            field.countdownStarted = false;
-                            delete field.dataset.ready;
-                        }
+                    if (!field.countdownStarted) {
+                        loadingCircle.style.animation = '';
+                        loadingCircle.style.border = '2px solid transparent';
+                        loadingCircle.style.borderTop = '2px solid var(--default-loading-circle-animation-color, #3498db)';
+                        loadingCircle.classList.remove('loading-circle-complete');
+                        isCountdownComplete = false;
                     }
-                });
 
-                if (!isOverActionField) {
-                    ghostpane.style.opacity = 0;
-                    loadingCircle.style.display = 'none';
+                    if (field.dataset.type === "preview") {
+                        updateGhostPane(field);
+                    }
+
+                    const countdownValue = parseInt(field.dataset.couldown);
+                    if (countdownValue >= 0) {
+                        if (!field.countdownStarted) {
+                            field.countdownStarted = true;
+                            field.countdownTime = countdownValue;
+
+                            const secondsValue = countdownValue / 1000;
+                            loadingCircle.style.animation = `spin ${secondsValue}s linear`;
+
+                            field.countdownTimer = setTimeout(() => {
+                                handleCountdownComplete(field);
+                            }, countdownValue);
+                        }
+                        loadingCircle.style.display = 'block';
+                    }
+                } else {
+                    if (field.countdownStarted) {
+                        clearTimeout(field.countdownTimer);
+                        field.countdownStarted = false;
+                        delete field.dataset.ready;
+                    }
                 }
+            });
+
+            if (!isOverActionField) {
+                ghostpane.style.opacity = 0;
+                loadingCircle.style.display = 'none';
             }
         }
+
+// Funktion zum Aktualisieren des Ghost-Panes basierend auf Aktionsfeld-Eigenschaften
+        function updateGhostPane(field) {
+            if (field.dataset.widthaktion) {
+                ghostpane.style.width = field.dataset.widthaktion.includes('%') ||
+                field.dataset.widthaktion.includes('vw') ?
+                    field.dataset.widthaktion :
+                    field.dataset.widthaktion + '%';
+            }
+
+            if (field.dataset.heightaktion) {
+                ghostpane.style.height = field.dataset.heightaktion.includes('%') ||
+                field.dataset.heightaktion.includes('vh') ?
+                    field.dataset.heightaktion :
+                    field.dataset.heightaktion + '%';
+            }
+
+            if (field.dataset.positionaktion) {
+                const positions = field.dataset.positionaktion.split(';');
+                positions.forEach(position => {
+                    const [prop, value] = position.split(':');
+                    if (prop && value) {
+                        ghostpane.style[prop.trim()] = value.trim();
+                    }
+                });
+            }
+
+            ghostpane.style.opacity = 0.5;
+            ghostpane.style.zIndex = 1002;
+        }
+
+        // Neue Funktion zum Anwenden von Aktionsfeld-Änderungen auf ein Element
+        function applyActionFieldChanges(field, element) {
+            if (field.dataset.widthaktion) {
+                element.style.width = field.dataset.widthaktion.includes('%') ||
+                field.dataset.widthaktion.includes('vw') ?
+                    field.dataset.widthaktion :
+                    field.dataset.widthaktion + '%';
+            }
+            if (field.dataset.heightaktion) {
+                element.style.height = field.dataset.heightaktion.includes('%') ||
+                field.dataset.heightaktion.includes('vh') ?
+                    field.dataset.heightaktion :
+                    field.dataset.heightaktion + '%';
+            }
+            if (field.dataset.positionaktion) {
+                const positions = field.dataset.positionaktion.split(';');
+                positions.forEach(position => {
+                    const [prop, value] = position.split(':');
+                    if (prop && value) {
+                        element.style[prop.trim()] = value.trim();
+                    }
+                });
+            }
+        }
+
+        // Neue Funktion zum Zurücksetzen der Trackpoint-Position
+        function resetTrackpointPosition(trackpoint, parentElement) {
+            // Ursprüngliche Position aus den Datenattributen ermitteln
+            let trackpointX = -6;
+            let trackpointY = -6;
+
+            if (parentElement.dataset.trackpointSize) {
+                const size = parseInt(parentElement.dataset.trackpointSize);
+                trackpointX = -size/2;
+                trackpointY = -size/2;
+            }
+
+            if (parentElement.dataset.trackpointPosition) {
+                const position = parentElement.dataset.trackpointPosition.split(',');
+                if (position.length === 2) {
+                    trackpointX = position[0].trim();
+                    trackpointY = position[1].trim();
+                }
+            }
+
+            trackpoint.style.top = `${trackpointY}px`;
+            trackpoint.style.left = `${trackpointX}px`;
+        }
+
+// Verbesserte Funktion zum Behandeln von Trackpoint-Bewegungen
+        function handleTrackpointMove(e) {
+            const trackpoints = document.querySelectorAll('.trackpoint');
+
+            trackpoints.forEach(trackpoint => {
+                if (trackpoint.isDragging) {
+                    // Trackpoint bewegen
+                    const newLeft = (e.clientX - trackpoint.offsetX + parseInt(trackpoint.style.left || -6));
+                    const newTop = (e.clientY - trackpoint.offsetY + parseInt(trackpoint.style.top || -6));
+
+                    trackpoint.style.left = `${newLeft}px`;
+                    trackpoint.style.top = `${newTop}px`;
+
+                    // Überprüfen, ob der Trackpoint über einem Aktionsfeld ist
+                    const aktionfields = document.querySelectorAll('.aktionfield');
+                    let isOverField = false;
+
+                    aktionfields.forEach(field => {
+                        const fieldRect = field.getBoundingClientRect();
+                        const trackpointRect = trackpoint.getBoundingClientRect();
+
+                        if (trackpointRect.left + trackpointRect.width/2 > fieldRect.left &&
+                            trackpointRect.left + trackpointRect.width/2 < fieldRect.right &&
+                            trackpointRect.top + trackpointRect.height/2 > fieldRect.top &&
+                            trackpointRect.top + trackpointRect.height/2 < fieldRect.bottom) {
+
+                            isOverField = true;
+
+                            // Zeige Vorschau für das Hauptelement an
+                            const parentElement = document.getElementById(trackpoint.dataset.parentId);
+                            if (parentElement) {
+                                if (field.dataset.type === "preview") {
+                                    updateGhostPane(field);
+                                }
+
+                                // Countdown-Logik für Trackpoint
+                                const countdownValue = parseInt(field.dataset.couldown);
+                                if (countdownValue >= 0) {
+                                    if (!field.trackpointCountdownStarted) {
+                                        field.trackpointCountdownStarted = true;
+                                        field.trackpointCountdownTime = countdownValue;
+
+                                        loadingCircle.style.display = 'block';
+                                        loadingCircle.style.left = (e.clientX - 17) + 'px';
+                                        loadingCircle.style.top = (e.clientY - 15) + 'px';
+
+                                        const secondsValue = countdownValue / 1000;
+                                        loadingCircle.style.animation = `spin ${secondsValue}s linear`;
+
+                                        field.trackpointCountdownTimer = setTimeout(() => {
+                                            field.dataset.trackpointReady = "true";
+                                            loadingCircle.classList.add('loading-circle-complete');
+                                        }, countdownValue);
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    if (!isOverField) {
+                        // Zurücksetzen, wenn nicht über einem Feld
+                        aktionfields.forEach(field => {
+                            if (field.trackpointCountdownStarted) {
+                                clearTimeout(field.trackpointCountdownTimer);
+                                field.trackpointCountdownStarted = false;
+                                delete field.dataset.trackpointReady;
+                            }
+                        });
+                        ghostpane.style.opacity = 0;
+                    }
+
+                    trackpoint.offsetX = e.clientX;
+                    trackpoint.offsetY = e.clientY;
+                }
+            });
+        }
+        //ende on onMove
 
         function animate() {
             requestAnimationFrame(animate);
@@ -615,6 +912,55 @@ core.util.DRS = function() {
             loadingCircle.style.display = 'none';
             isCountdownComplete = false;
 
+            // Trackpoint-Handling
+            const trackpoints = document.querySelectorAll('.trackpoint');
+            trackpoints.forEach(trackpoint => {
+                if (trackpoint.isDragging) {
+                    trackpoint.isDragging = false;
+
+                    // Box-Shadow zurücksetzen
+                    if (trackpoint.dataset.originalBoxShadow) {
+                        trackpoint.style.boxShadow = trackpoint.dataset.originalBoxShadow;
+                        delete trackpoint.dataset.originalBoxShadow;
+                    } else {
+                        trackpoint.style.boxShadow = '0 0 3px rgba(0,0,0,0.3)';
+                    }
+
+                    const parentElement = document.getElementById(trackpoint.dataset.parentId);
+                    if (parentElement) {
+                        const aktionfields = document.querySelectorAll('.aktionfield');
+                        aktionfields.forEach(field => {
+                            const fieldRect = field.getBoundingClientRect();
+                            const trackpointRect = trackpoint.getBoundingClientRect();
+
+                            if (trackpointRect.left + trackpointRect.width/2 > fieldRect.left &&
+                                trackpointRect.left + trackpointRect.width/2 < fieldRect.right &&
+                                trackpointRect.top + trackpointRect.height/2 > fieldRect.top &&
+                                trackpointRect.top + trackpointRect.height/2 < fieldRect.bottom) {
+
+                                // Nur Änderungen anwenden, wenn Countdown abgeschlossen oder kein Countdown gesetzt ist
+                                if (!field.dataset.couldown || field.dataset.trackpointReady === "true") {
+                                    applyActionFieldChanges(field, parentElement);
+
+                                    // Trackpoint zurück zur Standardposition, wenn konfiguriert
+                                    if (parentElement.dataset.trackpointReset === "true") {
+                                        resetTrackpointPosition(trackpoint, parentElement);
+                                    }
+                                }
+
+                                // Countdown-Status zurücksetzen
+                                if (field.trackpointCountdownStarted) {
+                                    clearTimeout(field.trackpointCountdownTimer);
+                                    field.trackpointCountdownStarted = false;
+                                    delete field.dataset.trackpointReady;
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            // Element-Handling
             if (clicked && clicked.isMoving) {
                 // Snapping beim Loslassen nur anwenden, wenn Clipping aktiviert ist
                 if (pane.dataset.clipping === "true") {
@@ -633,27 +979,7 @@ core.util.DRS = function() {
 
                         // Nur Änderungen anwenden, wenn Countdown abgeschlossen oder kein Countdown gesetzt ist
                         if (!field.dataset.couldown || field.dataset.ready === "true") {
-                            if (field.dataset.widthaktion) {
-                                pane.style.width = field.dataset.widthaktion.includes('%') ||
-                                field.dataset.widthaktion.includes('vw') ?
-                                    field.dataset.widthaktion :
-                                    field.dataset.widthaktion + '%';
-                            }
-                            if (field.dataset.heightaktion) {
-                                pane.style.height = field.dataset.heightaktion.includes('%') ||
-                                field.dataset.heightaktion.includes('vh') ?
-                                    field.dataset.heightaktion :
-                                    field.dataset.heightaktion + '%';
-                            }
-                            if (field.dataset.positionaktion) {
-                                const positions = field.dataset.positionaktion.split(';');
-                                positions.forEach(position => {
-                                    const [prop, value] = position.split(':');
-                                    if (prop && value) {
-                                        pane.style[prop.trim()] = value.trim();
-                                    }
-                                });
-                            }
+                            applyActionFieldChanges(field, pane);
                         }
 
                         // Countdown-Status zurücksetzen
@@ -671,17 +997,98 @@ core.util.DRS = function() {
             hideGuidelines(guidelines);
         }
 
+        function applyActionFieldChanges(field, element) {
+            if (field.dataset.widthaktion) {
+                element.style.width = field.dataset.widthaktion.includes('%') ||
+                field.dataset.widthaktion.includes('vw') ?
+                    field.dataset.widthaktion :
+                    field.dataset.widthaktion + '%';
+            }
+            if (field.dataset.heightaktion) {
+                element.style.height = field.dataset.heightaktion.includes('%') ||
+                field.dataset.heightaktion.includes('vh') ?
+                    field.dataset.heightaktion :
+                    field.dataset.heightaktion + '%';
+            }
+            if (field.dataset.positionaktion) {
+                const positions = field.dataset.positionaktion.split(';');
+                positions.forEach(position => {
+                    const [prop, value] = position.split(':');
+                    if (prop && value) {
+                        element.style[prop.trim()] = value.trim();
+                    }
+                });
+            }
+        }
+
+// Neue Funktion zum Zurücksetzen der Trackpoint-Position
+        function resetTrackpointPosition(trackpoint, parentElement) {
+            // Ursprüngliche Position aus den Datenattributen ermitteln
+            let trackpointX = -6;
+            let trackpointY = -6;
+
+            if (parentElement.dataset.trackpointSize) {
+                const size = parseInt(parentElement.dataset.trackpointSize);
+                trackpointX = -size/2;
+                trackpointY = -size/2;
+            }
+
+            if (parentElement.dataset.trackpointPosition) {
+                const position = parentElement.dataset.trackpointPosition.split(',');
+                if (position.length === 2) {
+                    trackpointX = position[0].trim();
+                    trackpointY = position[1].trim();
+                }
+            }
+            trackpoint.style.top = `${trackpointY}px`;
+            trackpoint.style.left = `${trackpointX}px`;
+        }
+
+        // Initialisiere bestehende Trackpoints
+        function initializeExistingTrackpoints() {
+            const trackpoints = document.querySelectorAll('.trackpoint');
+
+            trackpoints.forEach(trackpoint => {
+                // Wenn kein parent-id gesetzt ist, versuche das Elternelement zu verwenden
+                if (!trackpoint.dataset.parentId) {
+                    const parentElement = trackpoint.closest('.DRS');
+                    if (parentElement && parentElement.id) {
+                        trackpoint.dataset.parentId = parentElement.id;
+                    }
+                }
+
+                // Event-Listener für den Trackpoint
+                trackpoint.addEventListener('mousedown', function(e) {
+                    e.stopPropagation();
+                    trackpoint.isDragging = true;
+                    trackpoint.offsetX = e.clientX;
+                    trackpoint.offsetY = e.clientY;
+
+                    // Trackpoint visuell hervorheben
+                    const originalBoxShadow = trackpoint.style.boxShadow;
+                    trackpoint.dataset.originalBoxShadow = originalBoxShadow;
+
+                    const parentElement = document.getElementById(trackpoint.dataset.parentId);
+                    if (parentElement && parentElement.dataset.trackpointActiveBoxShadow) {
+                        trackpoint.style.boxShadow = parentElement.dataset.trackpointActiveBoxShadow;
+                    } else {
+                        trackpoint.style.boxShadow = '0 0 8px rgba(255,87,34,0.8)';
+                    }
+                });
+            });
+        }
+
         function hintHide() {
             ghostpane.style.opacity = 0;
         }
 
         function checkOverlap(element) {
-            const draggables = document.querySelectorAll('.draggable');
+            const drsElements = document.querySelectorAll('.DRS');
             const rect1 = element.getBoundingClientRect();
             const snapDistance = SNAP_MARGINS;
             let didSnap = false;
 
-            draggables.forEach(other => {
+            drsElements.forEach(other => {
                 if (other === element) return;
 
                 const rect2 = other.getBoundingClientRect();
@@ -746,35 +1153,59 @@ core.util.DRS = function() {
 };
 
 // Initialize both the original drag-drop and the DRS functionality
+// Modifiziere die DOMContentLoaded Event-Listener, um bestehende Trackpoints zu initialisieren
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DRS for each draggable element
-    const draggables = document.querySelectorAll('.draggable');
-    draggables.forEach((draggable, index) => {
+    // Initialize DRS for each DRS element
+    const drsElements = document.querySelectorAll('.DRS');
+    drsElements.forEach((drsElement, index) => {
         // Add ID if not present
-        if (!draggable.id) {
-            draggable.id = 'draggable-' + index;
+        if (!drsElement.id) {
+            drsElement.id = 'DRS-' + index;
         }
+
+        // Standardmäßig ist Drag deaktiviert, sofern nicht explizit aktiviert
+        if (drsElement.dataset.drag !== "true") {
+            drsElement.dataset.drag = "false";
+        }
+
+        // Standardmäßig ist Clipping deaktiviert, sofern nicht explizit aktiviert
+        if (drsElement.dataset.clipping !== "true") {
+            drsElement.dataset.clipping = "false";
+        }
+
+        // Standardmäßig ist Resizing deaktiviert, sofern nicht explizit aktiviert
+        if (drsElement.dataset.resizing !== "true") {
+            drsElement.dataset.resizing = "false";
+        }
+
         // Initialize DRS for each element
-        const drs = core.util.DRS().makeDRS(draggable, 'full', {
-            snapStrength: 50, // Adjust this value to control clip strength
+        const drs = core.util.DRS().makeDRS(drsElement, 'full', {
+            snapStrength: 50,
             snapEdge: 10,
             resizeInnerM: 5,
             resizeOuterM: 5
         });
+
+        // Trackpoint erstellen, wenn das Element die Klasse 'has-trackpoint' hat und noch keinen Trackpoint enthält
+        if ((drsElement.classList.contains('has-trackpoint') || drsElement.dataset.trackpoint === "true") &&
+            !drsElement.querySelector('.trackpoint')) {
+            createTrackpoint(drsElement);
+        }
     });
 
-    // Ensure draggable elements are always on top while dragging
+    // Initialisiere bestehende Trackpoints
+    initializeExistingTrackpoints();
+
+    // Ensure DRS elements are always on top while dragging
     const container = document.getElementById('drag-container');
     if (container) {
         container.addEventListener('mousedown', (e) => {
-            const target = e.target.closest('.draggable');
+            const target = e.target.closest('.DRS');
             if (target) {
                 // Bring the clicked element to the front
-                draggables.forEach(draggable => draggable.style.zIndex = 1);
+                drsElements.forEach(drsElement => drsElement.style.zIndex = 1);
                 target.style.zIndex = 1000;
             }
         });
     }
 });
-
-
