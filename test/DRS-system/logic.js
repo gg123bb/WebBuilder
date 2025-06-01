@@ -1,5 +1,136 @@
 var core = core || {};
 core.util = core.util || {};
+// Globale Funktion zum Initialisieren von Trackpoints
+function initializeExistingTrackpoints() {
+    const trackpoints = document.querySelectorAll('.trackpoint');
+
+    trackpoints.forEach(trackpoint => {
+        // Wenn kein parent-id gesetzt ist, versuche das Elternelement zu verwenden
+        if (!trackpoint.dataset.parentId) {
+            const parentElement = trackpoint.closest('.DRS');
+            if (parentElement && parentElement.id) {
+                trackpoint.dataset.parentId = parentElement.id;
+            }
+        }
+
+        // Event-Listener für den Trackpoint
+        trackpoint.addEventListener('mousedown', function(e) {
+            e.stopPropagation();
+            trackpoint.isDragging = true;
+            trackpoint.offsetX = e.clientX;
+            trackpoint.offsetY = e.clientY;
+
+            // Trackpoint visuell hervorheben
+            const originalBoxShadow = trackpoint.style.boxShadow;
+            trackpoint.dataset.originalBoxShadow = originalBoxShadow;
+
+            const parentElement = document.getElementById(trackpoint.dataset.parentId);
+            if (parentElement && parentElement.dataset.trackpointActiveBoxShadow) {
+                trackpoint.style.boxShadow = parentElement.dataset.trackpointActiveBoxShadow;
+            } else {
+                trackpoint.style.boxShadow = '0 0 8px rgba(255,87,34,0.8)';
+            }
+        });
+    });
+}
+
+// Globale Funktion zum Erstellen von Trackpoints
+function createTrackpoint(element) {
+    // Prüfen ob bereits ein Trackpoint existiert
+    if (element.querySelector('.trackpoint')) return;
+
+    // Trackpoint erstellen
+    const trackpoint = document.createElement('div');
+    trackpoint.className = 'trackpoint';
+
+    // Standardwerte für Trackpoint
+    let trackpointSize = 12;
+    let trackpointX = -6;
+    let trackpointY = -6;
+    let trackpointColor = 'var(--trackpoint-color, #ff5722)';
+    let trackpointBorderRadius = '50%';
+    let trackpointZIndex = 1001;
+    let trackpointBoxShadow = '0 0 3px rgba(0,0,0,0.3)';
+
+    // Dynamische Attribute aus Datenattributen auslesen
+    if (element.dataset.trackpointSize) {
+        trackpointSize = parseInt(element.dataset.trackpointSize);
+        trackpointX = -trackpointSize/2;
+        trackpointY = -trackpointSize/2;
+    }
+
+    if (element.dataset.trackpointPosition) {
+        const position = element.dataset.trackpointPosition.split(',');
+        if (position.length === 2) {
+            trackpointX = position[0].trim();
+            trackpointY = position[1].trim();
+        }
+    }
+
+    if (element.dataset.trackpointColor) {
+        trackpointColor = element.dataset.trackpointColor;
+    }
+
+    if (element.dataset.trackpointBorderRadius) {
+        trackpointBorderRadius = element.dataset.trackpointBorderRadius;
+    }
+
+    if (element.dataset.trackpointZIndex) {
+        trackpointZIndex = element.dataset.trackpointZIndex;
+    }
+
+    if (element.dataset.trackpointBoxShadow) {
+        trackpointBoxShadow = element.dataset.trackpointBoxShadow;
+    }
+
+    // CSS für den Trackpoint setzen
+    trackpoint.style.cssText = `
+        position: absolute;
+        width: ${trackpointSize}px;
+        height: ${trackpointSize}px;
+        background-color: ${trackpointColor};
+        border-radius: ${trackpointBorderRadius};
+        top: ${trackpointY}px;
+        left: ${trackpointX}px;
+        cursor: move;
+        z-index: ${trackpointZIndex};
+        box-shadow: ${trackpointBoxShadow};
+        pointer-events: all;
+    `;
+
+    // Benutzerdefiniertes CSS aus data-trackpoint-css
+    if (element.dataset.trackpointCss) {
+        const cssProperties = element.dataset.trackpointCss.split(';');
+        cssProperties.forEach(property => {
+            if (property.trim()) {
+                const [name, value] = property.split(':');
+                if (name && value) {
+                    trackpoint.style[name.trim()] = value.trim();
+                }
+            }
+        });
+    }
+
+    // Dem Element zuordnen
+    trackpoint.dataset.parentId = element.id;
+    element.appendChild(trackpoint);
+
+    // Event-Listener für den Trackpoint
+    trackpoint.addEventListener('mousedown', function(e) {
+        e.stopPropagation();
+        trackpoint.isDragging = true;
+        trackpoint.offsetX = e.clientX;
+        trackpoint.offsetY = e.clientY;
+
+        // Trackpoint visuell hervorheben
+        const originalBoxShadow = trackpoint.style.boxShadow;
+        trackpoint.dataset.originalBoxShadow = originalBoxShadow;
+        trackpoint.style.boxShadow = element.dataset.trackpointActiveBoxShadow ||
+            '0 0 8px rgba(255,87,34,0.8)';
+    });
+
+    return trackpoint;
+}
 core.util.DRS = function() {
     var makeDRS = function(pane, handle, options) {
         "use strict";
@@ -718,6 +849,13 @@ core.util.DRS = function() {
                             }, countdownValue);
                         }
                         loadingCircle.style.display = 'block';
+                    } else {
+                        // Sofortige Aktivierung, wenn kein Countdown gesetzt ist
+                        field.dataset.ready = "true";
+                        isCountdownComplete = true;
+
+                        // Sofort Änderungen anwenden für flüssigere Erfahrung
+                        applyActionFieldChanges(field, element);
                     }
                 } else {
                     if (field.countdownStarted) {
@@ -867,6 +1005,12 @@ core.util.DRS = function() {
                                             loadingCircle.classList.add('loading-circle-complete');
                                         }, countdownValue);
                                     }
+                                } else {
+                                    // Sofortige Aktivierung, wenn kein Countdown gesetzt ist
+                                    field.dataset.trackpointReady = "true";
+
+                                    // Sofort Änderungen anwenden für flüssigere Erfahrung
+                                    applyActionFieldChanges(field, parentElement);
                                 }
                             }
                         }
@@ -1042,40 +1186,6 @@ core.util.DRS = function() {
             }
             trackpoint.style.top = `${trackpointY}px`;
             trackpoint.style.left = `${trackpointX}px`;
-        }
-
-        // Initialisiere bestehende Trackpoints
-        function initializeExistingTrackpoints() {
-            const trackpoints = document.querySelectorAll('.trackpoint');
-
-            trackpoints.forEach(trackpoint => {
-                // Wenn kein parent-id gesetzt ist, versuche das Elternelement zu verwenden
-                if (!trackpoint.dataset.parentId) {
-                    const parentElement = trackpoint.closest('.DRS');
-                    if (parentElement && parentElement.id) {
-                        trackpoint.dataset.parentId = parentElement.id;
-                    }
-                }
-
-                // Event-Listener für den Trackpoint
-                trackpoint.addEventListener('mousedown', function(e) {
-                    e.stopPropagation();
-                    trackpoint.isDragging = true;
-                    trackpoint.offsetX = e.clientX;
-                    trackpoint.offsetY = e.clientY;
-
-                    // Trackpoint visuell hervorheben
-                    const originalBoxShadow = trackpoint.style.boxShadow;
-                    trackpoint.dataset.originalBoxShadow = originalBoxShadow;
-
-                    const parentElement = document.getElementById(trackpoint.dataset.parentId);
-                    if (parentElement && parentElement.dataset.trackpointActiveBoxShadow) {
-                        trackpoint.style.boxShadow = parentElement.dataset.trackpointActiveBoxShadow;
-                    } else {
-                        trackpoint.style.boxShadow = '0 0 8px rgba(255,87,34,0.8)';
-                    }
-                });
-            });
         }
 
         function hintHide() {

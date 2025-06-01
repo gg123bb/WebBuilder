@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>DRS Demo</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #f0f0f0;
+            font-family: sans-serif;
+        }
+        .DRS {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            min-width: 50px;
+            min-height: 50px;
+        }
+        .resize-trackpoint {
+            background: #2196f3;
+            border-radius: 2px;
+        }
+        .trackpoint {
+            background: #ff5722;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+<div id="leftPanel" class="DRS" style="top: 20px; left: 20px; width: 300px; height: 400px;">Werkzeuge</div>
+<div id="rightPanel" class="DRS" style="top: 20px; left: 320px; width: 400px; height: 400px;">Vorschau</div>
+
+<script type="module">
+    import { DRS } from './drs.js';
+
+    const left = new DRS(document.getElementById('leftPanel'), {
+        drag: true,
+        resize: true,
+        resizeHandles: 'trackpoints',
+        resizeDirections: ['right', 'corner'],
+        group: 'workspace'
+    });
+
+    const right = new DRS(document.getElementById('rightPanel'), {
+        drag: true,
+        resize: true,
+        resizeHandles: 'trackpoints',
+        resizeDirections: ['left', 'corner'], // Links ist hier nicht implementiert – kann angepasst werden
+        group: 'workspace'
+    });
+
+    document.addEventListener('drs:move', e => {
+        console.log('Move:', e.detail);
+    });
+    document.addEventListener('drs:resize', e => {
+        console.log('Resize:', e.detail);
+    });
+</script>
+</body>
+</html>
